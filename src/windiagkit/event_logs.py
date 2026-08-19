@@ -1,6 +1,7 @@
 from os import name
 
 from .console_utils import run_visible
+from .powershell_scripts import load_script
 
 
 LOGS = {
@@ -41,91 +42,37 @@ def _powershell_literal(value):
     return "'" + str(value).replace("'", "''") + "'"
 
 
+def _load_script(script_name, replacements):
+    try:
+        return load_script(script_name, replacements)
+    except RuntimeError as exc:
+        print(exc)
+        return None
+
+
 def show_operational_log(log_name, minutes=15, max_events=100, timeout=30.0):
     # The log may exist but be disabled. We report that without changing its state.
     minutes = _bounded_integer("minutes", minutes, 1, 1440)
     max_events = _bounded_integer("max_events", max_events, 1, 1000)
     log_literal = _powershell_literal(log_name)
-    script = rf'''
-$logName = {log_literal}
-try {{
-    $log = Get-WinEvent -ListLog $logName -ErrorAction Stop
-}} catch {{
-    Write-Host "Could not inspect log: $($_.Exception.Message)"
-    exit 1
-}}
-if (-not $log) {{
-    Write-Host "Log not available: $logName"
-    exit
-}}
-
-Write-Host "Log: $logName"
-Write-Host "Enabled: $($log.IsEnabled)"
-Write-Host "Window: last {minutes} minute(s)"
-Write-Host ""
-
-if (-not $log.IsEnabled) {{
-    Write-Host "This Operational log is currently disabled."
-    Write-Host "WinDiagKit will not enable it automatically because that changes system state."
-    exit
-}}
-
-$start = (Get-Date).AddMinutes(-{minutes})
-try {{
-    $events = @(Get-WinEvent -FilterHashtable @{{
-        LogName = $logName
-        StartTime = $start
-    }} -ErrorAction Stop |
-    Select-Object -First {max_events} TimeCreated, Id, LevelDisplayName, ProviderName, Message)
-}} catch {{
-    if ($_.FullyQualifiedErrorId -like 'NoMatchingEventsFound*') {{
-        Write-Host "No matching events found."
-        exit
-    }}
-    Write-Host "Event query failed: $($_.Exception.Message)"
-    exit 1
-}}
-
-if ($events.Count -eq 0) {{
-    Write-Host "No matching events found."
-}} else {{
-    $events | Format-List
-}}
-'''
+    script = _load_script(
+        "operational_log.ps1",
+        {"LOG_NAME": log_literal, "MINUTES": minutes, "MAX_EVENTS": max_events},
+    )
+    if script is None:
+        return False
     return _powershell(script, timeout)
 
 
 def show_system_warnings_errors(minutes=15, max_events=100, timeout=30.0):
     minutes = _bounded_integer("minutes", minutes, 1, 1440)
     max_events = _bounded_integer("max_events", max_events, 1, 1000)
-    script = rf'''
-$start = (Get-Date).AddMinutes(-{minutes})
-Write-Host "System log - Critical / Error / Warning"
-Write-Host "Window: last {minutes} minute(s)"
-Write-Host ""
-
-try {{
-    $events = @(Get-WinEvent -FilterHashtable @{{
-        LogName = 'System'
-        StartTime = $start
-        Level = 1,2,3
-    }} -ErrorAction Stop |
-    Select-Object -First {max_events} TimeCreated, Id, LevelDisplayName, ProviderName, Message)
-}} catch {{
-    if ($_.FullyQualifiedErrorId -like 'NoMatchingEventsFound*') {{
-        Write-Host "No matching events found."
-        exit
-    }}
-    Write-Host "Event query failed: $($_.Exception.Message)"
-    exit 1
-}}
-
-if ($events.Count -eq 0) {{
-    Write-Host "No matching events found."
-}} else {{
-    $events | Format-List
-}}
-'''
+    script = _load_script(
+        "system_warnings_errors.ps1",
+        {"MINUTES": minutes, "MAX_EVENTS": max_events},
+    )
+    if script is None:
+        return False
     return _powershell(script, timeout)
 
 

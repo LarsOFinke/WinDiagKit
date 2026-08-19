@@ -5,6 +5,7 @@ from time import monotonic, sleep, strftime
 from psutil import cpu_freq, cpu_percent, net_io_counters, virtual_memory
 
 from .console_utils import APP_NAME, clear_screen, hidden_output
+from .powershell_scripts import load_script
 
 
 def human_bytes(value):
@@ -32,6 +33,11 @@ def find_nvidia_smi():
 
 def read_nvidia_gpu(nvidia_smi, timeout=3.0):
     if not nvidia_smi:
+        return []
+
+    try:
+        script = load_script("acpi_temperatures.ps1", {})
+    except RuntimeError:
         return []
 
     output = hidden_output(
@@ -65,12 +71,7 @@ def read_acpi_temperatures(timeout=4.0):
             "-NoProfile",
             "-NonInteractive",
             "-Command",
-            (
-                "Get-CimInstance -Namespace root/wmi "
-                "-ClassName MSAcpi_ThermalZoneTemperature "
-                "-ErrorAction SilentlyContinue | "
-                "ForEach-Object { '{0:F1}' -f (($_.CurrentTemperature / 10.0) - 273.15) }"
-            ),
+            script,
         ],
         timeout=timeout,
     )

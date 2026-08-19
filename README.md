@@ -71,6 +71,7 @@ platforms. A real Windows smoke test is still recommended for release builds.
 
 - `src/main.py` - direct source and PyInstaller entry point
 - `src/windiagkit/` - application package and diagnostic modules
+- `src/windiagkit/powershell/` - read-only Event Viewer script templates
 - `scripts/` - Windows build and maintenance scripts
 - `tests/` - automated unit tests
 

@@ -10,6 +10,7 @@
 - Pin runtime and build dependencies for reproducible builds.
 - Add an x86 interpreter check to the Windows build script.
 - Adopt a `src/windiagkit` package layout and a dedicated `scripts` directory.
+- Move Event Viewer PowerShell into bundled project templates.
 
 ## 0.1.0
 

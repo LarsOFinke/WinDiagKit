@@ -29,7 +29,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-python -m PyInstaller --clean --noconfirm --noupx --onefile --console --paths src --name WinDiagKit src\main.py
+python -m PyInstaller --clean --noconfirm --noupx --onefile --console --paths src --add-data "src\windiagkit\powershell;windiagkit\powershell" --name WinDiagKit src\main.py
 if errorlevel 1 (
     popd
     exit /b 1

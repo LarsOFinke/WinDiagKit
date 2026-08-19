@@ -72,6 +72,91 @@ def _read_choices(parser, default, warnings):
         return default
 
 
+def _read_target(parser, default, warnings):
+    target = parser.get("network", "default_target", fallback=default).strip()
+    if target and len(target) <= 253 and not any(char.isspace() for char in target):
+        return target
+    warnings.append(f"[network] default_target is invalid; using {default}.")
+    return default
+
+
+def _read_section_values(parser, section, defaults, specifications, warnings):
+    return {
+        field: _read_value(parser, section, option, getattr(defaults, field), converter,
+                           minimum, maximum, warnings)
+        for field, option, converter, minimum, maximum in specifications
+    }
+
+
+def _network_settings(parser, defaults, warnings):
+    values = _read_section_values(
+        parser,
+        "network",
+        defaults,
+        (
+            ("ping_count", "ping_count", int, 1, 20),
+            ("ping_timeout_ms", "ping_timeout_ms", int, 100, 10000),
+            ("traceroute_max_hops", "traceroute_max_hops", int, 1, 64),
+            ("traceroute_timeout_ms", "traceroute_timeout_ms", int, 100, 10000),
+            ("command_timeout_seconds", "command_timeout_seconds", float, 1.0, 300.0),
+        ),
+        warnings,
+    )
+    values["default_target"] = _read_target(parser, defaults.default_target, warnings)
+    return values
+
+
+def _event_settings(parser, defaults, warnings):
+    choices = _read_choices(parser, defaults.event_window_choices, warnings)
+    window = _read_value(
+        parser, "events", "default_window_minutes", defaults.event_window_minutes,
+        int, 1, 1440, warnings
+    )
+    if window not in choices:
+        warnings.append(
+            "[events] default_window_minutes is not in window_choices; "
+            f"using {choices[0]}."
+        )
+        window = choices[0]
+    values = _read_section_values(
+        parser,
+        "events",
+        defaults,
+        (
+            ("max_events", "max_events", int, 1, 1000),
+            ("event_query_timeout_seconds", "query_timeout_seconds", float, 1.0, 300.0),
+        ),
+        warnings,
+    )
+    values.update(event_window_minutes=window, event_window_choices=choices)
+    return values
+
+
+def _monitor_settings(parser, defaults, warnings):
+    return _read_section_values(
+        parser,
+        "monitor",
+        defaults,
+        (
+            ("sample_seconds", "sample_seconds", float, 0.2, 60.0),
+            ("acpi_refresh_seconds", "acpi_refresh_seconds", float, 1.0, 300.0),
+            ("helper_timeout_seconds", "helper_timeout_seconds", float, 1.0, 30.0),
+        ),
+        warnings,
+    )
+
+
+def _read_config(config_path, warn):
+    parser = ConfigParser(interpolation=None)
+    try:
+        with config_path.open(encoding="utf-8") as config_file:
+            parser.read_file(config_file)
+    except (OSError, UnicodeError, Error) as exc:
+        warn(f"Warning: could not read configuration {config_path}: {exc}")
+        return None
+    return parser
+
+
 def load_settings(path=None, warn=print):
     defaults = Settings()
     explicitly_selected = path is not None or bool(environ.get(CONFIG_ENV_VAR))
@@ -81,77 +166,14 @@ def load_settings(path=None, warn=print):
             warn(f"Warning: configuration file not found: {config_path}")
         return defaults
 
-    parser = ConfigParser(interpolation=None)
-    warnings = []
-    try:
-        with config_path.open(encoding="utf-8") as config_file:
-            parser.read_file(config_file)
-    except (OSError, UnicodeError, Error) as exc:
-        warn(f"Warning: could not read configuration {config_path}: {exc}")
+    parser = _read_config(config_path, warn)
+    if parser is None:
         return defaults
 
-    target = parser.get("network", "default_target", fallback=defaults.default_target).strip()
-    if not target or len(target) > 253 or any(char.isspace() for char in target):
-        warnings.append(
-            f"[network] default_target is invalid; using {defaults.default_target}."
-        )
-        target = defaults.default_target
-
-    choices = _read_choices(parser, defaults.event_window_choices, warnings)
-    event_window = _read_value(
-        parser, "events", "default_window_minutes", defaults.event_window_minutes,
-        int, 1, 1440, warnings
-    )
-    if event_window not in choices:
-        warnings.append(
-            "[events] default_window_minutes is not in window_choices; "
-            f"using {choices[0]}."
-        )
-        event_window = choices[0]
-
-    settings = Settings(
-        default_target=target,
-        event_window_minutes=event_window,
-        event_window_choices=choices,
-        max_events=_read_value(
-            parser, "events", "max_events", defaults.max_events, int, 1, 1000, warnings
-        ),
-        event_query_timeout_seconds=_read_value(
-            parser, "events", "query_timeout_seconds",
-            defaults.event_query_timeout_seconds, float, 1.0, 300.0, warnings
-        ),
-        ping_count=_read_value(
-            parser, "network", "ping_count", defaults.ping_count, int, 1, 20, warnings
-        ),
-        ping_timeout_ms=_read_value(
-            parser, "network", "ping_timeout_ms", defaults.ping_timeout_ms,
-            int, 100, 10000, warnings
-        ),
-        traceroute_max_hops=_read_value(
-            parser, "network", "traceroute_max_hops", defaults.traceroute_max_hops,
-            int, 1, 64, warnings
-        ),
-        traceroute_timeout_ms=_read_value(
-            parser, "network", "traceroute_timeout_ms", defaults.traceroute_timeout_ms,
-            int, 100, 10000, warnings
-        ),
-        command_timeout_seconds=_read_value(
-            parser, "network", "command_timeout_seconds",
-            defaults.command_timeout_seconds, float, 1.0, 300.0, warnings
-        ),
-        sample_seconds=_read_value(
-            parser, "monitor", "sample_seconds", defaults.sample_seconds,
-            float, 0.2, 60.0, warnings
-        ),
-        acpi_refresh_seconds=_read_value(
-            parser, "monitor", "acpi_refresh_seconds", defaults.acpi_refresh_seconds,
-            float, 1.0, 300.0, warnings
-        ),
-        helper_timeout_seconds=_read_value(
-            parser, "monitor", "helper_timeout_seconds", defaults.helper_timeout_seconds,
-            float, 1.0, 30.0, warnings
-        ),
-    )
+    warnings = []
+    values = _network_settings(parser, defaults, warnings)
+    values.update(_event_settings(parser, defaults, warnings))
+    values.update(_monitor_settings(parser, defaults, warnings))
     for message in warnings:
         warn(f"Warning: {message}")
-    return settings
+    return Settings(**values)
