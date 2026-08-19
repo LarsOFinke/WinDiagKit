@@ -100,7 +100,7 @@ scripts\build_x64.bat
 
 This is the normal choice for 64-bit Windows 10 and 11. It requires 64-bit
 Python and installs the project with its `build` extra from `pyproject.toml`
-before creating `dist\WinDiagKit\WinDiagKit.exe`.
+before creating `dist\WinDiagKit.exe`.
 
 The build scripts may be run from an activated matching virtual environment;
 their `python` command then uses that environment automatically.
@@ -108,8 +108,7 @@ their `python` command then uses that environment automatically.
 Run `scripts\build_x86.bat` with a 32-bit Python environment on `PATH`. The
 script resolves the project root automatically, rejects a 64-bit interpreter,
 installs the pinned x86-compatible build dependencies, disables optional UPX
-compression, and creates the windowed `dist\WinDiagKit\WinDiagKit.exe`. PyQt5
-5.15.11 and
+compression, and creates the windowed `dist\WinDiagKit.exe`. PyQt5 5.15.11 and
 its SIP dependency have CPython 3.14 win32 wheels. The x86 lockfile uses Qt
 runtime 5.15.2 because it is the only release currently published with a PyPI
 win32 wheel; normal installations use a compatible Qt 5.15 runtime selected by
@@ -122,10 +121,9 @@ PyInstaller builds for the architecture of the running Python interpreter; it
 does not cross-compile between x86 and x64. Both scripts fail early with a clear
 message if the wrong Python architecture is active.
 
-Both builds use PyInstaller's directory mode to avoid a self-extracting
-container. Distribute the complete `dist\WinDiagKit` directory; the EXE cannot
-be separated from its adjacent runtime files. To customize it, copy
-`winddiagkit.ini.example` to `dist\WinDiagKit\winddiagkit.ini`.
+Both builds create a single `dist\WinDiagKit.exe` for straightforward end-user
+distribution. To customize it, copy `winddiagkit.ini.example` to
+`dist\winddiagkit.ini`.
 
 For a release certificate already installed in the Windows certificate store,
 set its SHA-1 thumbprint before building. The script then applies and verifies
@@ -206,9 +204,9 @@ Network tests generate normal DNS, ICMP, and traceroute traffic. `ipconfig /all`
 and Event Viewer output can contain sensitive information when copied or
 screenshotted.
 
-The release uses PyInstaller directory mode and does not unpack itself into a
-temporary directory. WinDiagKit itself does not export or persist collected
-diagnostic data.
+The release uses PyInstaller's single-file mode, which extracts its private
+runtime to a temporary directory while running. WinDiagKit itself does not
+export or persist collected diagnostic data.
 
 ## GUI dependency license
 
@@ -231,13 +229,13 @@ does not generate inline PowerShell, encode commands, or override execution
 policy.
 
 No software can guarantee that every antivirus engine will accept an unsigned
-PyInstaller executable. The build uses directory mode, disables UPX compression,
-adds standard Windows metadata, and supports Authenticode signing to reduce
-avoidable heuristic signals. For target-system analysis, provide the SHA-256
-hash printed by the build script, the source commit, and the complete output
-directory from a clean build machine. Never ask a recipient to disable antivirus
-protection. Submit any remaining suspected false positive to the relevant vendor
-for analysis.
+PyInstaller executable. The build uses single-file mode for end-user simplicity,
+disables UPX compression, adds standard Windows metadata, and supports
+Authenticode signing to reduce avoidable heuristic signals. For target-system
+analysis, provide the SHA-256 hash printed by the build script, the source
+commit, and the EXE from a clean build machine. Never ask a recipient to disable
+antivirus protection. Submit any remaining suspected false positive to the
+relevant vendor for analysis.
 
 ## License
 

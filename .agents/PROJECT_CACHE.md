@@ -11,7 +11,7 @@
 - PowerShell boundary: `powershell/powershell_runner.py`; safe file resolution:
   `powershell/script_loader.py`.
 - Bundled scripts: `powershell/scripts/*.ps1`; all are intended to be read-only.
-- Release build: PyInstaller `--onedir`, UPX off, version metadata, optional
+- Release build: PyInstaller `--onefile`, UPX off, version metadata, optional
   Authenticode through `WINDIAGKIT_SIGN_CERT_SHA1`.
 - Configuration: immutable `Settings` plus `ConfigurationLoader`.
 - Tests: standard-library `unittest`; Windows processes are mocked.

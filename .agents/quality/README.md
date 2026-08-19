@@ -11,7 +11,7 @@ Preserve these invariants:
 - keep stateless validation and formatting as functions;
 - avoid compatibility wrappers unless a supported public API requires one;
 - package every PowerShell resource and keep x86-specific pins isolated.
-- keep release builds in `--onedir` mode with UPX disabled and metadata current.
+- keep release builds in `--onefile` mode with UPX disabled and metadata current.
 
 Before handoff, run lint, formatting, compilation, all tests, source GUI smoke,
 and a clean PyInstaller smoke test when packaging paths changed. Check

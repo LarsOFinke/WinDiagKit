@@ -28,9 +28,9 @@ PyInstaller follows the architecture of its Python interpreter and does not
 cross-compile. Normal dependencies and tooling live in `pyproject.toml`; only
 the win32 wheel constraints remain in `requirements-x86.txt`.
 
-Both scripts produce a non-self-extracting directory build at
-`dist\WinDiagKit`. Distribute the whole directory. UPX remains disabled and
-standard Windows properties come from `scripts\windows_version_info.txt`.
+Both scripts produce a single-file build at `dist\WinDiagKit.exe`. UPX remains
+disabled and standard Windows properties come from
+`scripts\windows_version_info.txt`.
 The application honors the target system's PowerShell execution policy; it does
 not bypass a policy that prevents script execution.
 

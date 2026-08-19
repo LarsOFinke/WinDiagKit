@@ -21,9 +21,9 @@ PowerShell diagnostics execute the visible bundled `.ps1` resources with
 `-File`; inputs are separate arguments. WinDiagKit does not use inline or encoded
 commands and does not bypass Windows execution policy.
 
-Release builds use PyInstaller directory mode so they do not self-extract at
-runtime. UPX is disabled, Windows version metadata is included, and the build
-can Authenticode-sign when a certificate thumbprint is supplied. These choices
+Release builds use PyInstaller single-file mode for simple end-user delivery.
+UPX is disabled, Windows version metadata is included, and the build can
+Authenticode-sign when a certificate thumbprint is supplied. These choices
 reduce avoidable heuristic signals but cannot guarantee that every scanner will
 classify every new unsigned binary correctly. Provide a source commit and
 SHA-256 hash, submit suspected false positives to the vendor, and never instruct

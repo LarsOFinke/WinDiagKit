@@ -30,8 +30,8 @@ class BuildScriptTests(unittest.TestCase):
             with self.subTest(architecture=architecture):
                 script = self._read_script(architecture)
                 self.assertIn("--windowed", script)
-                self.assertIn("--onedir", script)
-                self.assertNotIn("--onefile", script)
+                self.assertIn("--onefile", script)
+                self.assertNotIn("--onedir", script)
                 self.assertIn("--noupx", script)
                 self.assertIn(
                     '--version-file "scripts\\windows_version_info.txt"', script
