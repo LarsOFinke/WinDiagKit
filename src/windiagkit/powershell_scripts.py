@@ -1,5 +1,5 @@
 from pathlib import Path
-
+from re import findall
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().with_name("powershell")
 
@@ -9,8 +9,14 @@ def load_script(script_name, replacements):
     try:
         script = script_path.read_text(encoding="utf-8")
     except OSError as exc:
-        raise RuntimeError(f"Could not load PowerShell script {script_name}: {exc}") from exc
+        raise RuntimeError(
+            f"Could not load PowerShell script {script_name}: {exc}"
+        ) from exc
 
     for name, value in replacements.items():
         script = script.replace(f"__{name}__", str(value))
+    unresolved = findall(r"__[A-Z][A-Z0-9_]*__", script)
+    if unresolved:
+        names = ", ".join(sorted(set(unresolved)))
+        raise RuntimeError(f"Unresolved placeholders in {script_name}: {names}")
     return script

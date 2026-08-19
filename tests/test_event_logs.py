@@ -17,6 +17,8 @@ class EventLogTests(unittest.TestCase):
         self.assertEqual(timeout, 12)
 
     def test_query_limits_are_validated(self):
+        with self.assertRaises(TypeError):
+            event_logs.show_operational_log("System", "15")
         with self.assertRaises(ValueError):
             event_logs.show_operational_log("System", 0)
         with self.assertRaises(ValueError):

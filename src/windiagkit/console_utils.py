@@ -1,7 +1,6 @@
 from os import name
 from subprocess import SubprocessError, TimeoutExpired, list2cmdline, run
 
-
 APP_NAME = "WinDiagKit"
 
 

@@ -50,8 +50,10 @@ The complete documented template is in `winddiagkit.ini.example`.
 
 Run `scripts\build_x86.bat` with a 32-bit Python environment on `PATH`. The
 script resolves the project root automatically, rejects a 64-bit interpreter,
-installs the pinned build dependencies, disables optional UPX compression, and
-creates `dist\WinDiagKit.exe`.
+installs the pinned x86-compatible build dependencies, disables optional UPX
+compression, and creates `dist\WinDiagKit.exe`. The x86 build uses psutil 6.1.1,
+the latest release that provides a compatible Windows win32 wheel; normal source
+installations use the current version pinned in `requirements.txt`.
 
 To customize the built application, copy `winddiagkit.ini.example` to
 `dist\winddiagkit.ini`.

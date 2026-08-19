@@ -34,7 +34,13 @@ class NetworkCommandTests(unittest.TestCase):
             run.call_args_list[0],
             call(
                 [
-                    "tracert", "-4", "-d", "-h", "12", "-w", "750",
+                    "tracert",
+                    "-4",
+                    "-d",
+                    "-h",
+                    "12",
+                    "-w",
+                    "750",
                     "host.example",
                 ],
                 timeout=20,

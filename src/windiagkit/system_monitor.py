@@ -1,4 +1,5 @@
-from os import name, path
+from os import name as os_name
+from os import path
 from shutil import which
 from time import monotonic, sleep, strftime
 
@@ -35,11 +36,6 @@ def read_nvidia_gpu(nvidia_smi, timeout=3.0):
     if not nvidia_smi:
         return []
 
-    try:
-        script = load_script("acpi_temperatures.ps1", {})
-    except RuntimeError:
-        return []
-
     output = hidden_output(
         [
             nvidia_smi,
@@ -61,7 +57,12 @@ def read_nvidia_gpu(nvidia_smi, timeout=3.0):
 
 def read_acpi_temperatures(timeout=4.0):
     """Best-effort ACPI thermal zones; these are not guaranteed CPU package temps."""
-    if name != "nt":
+    if os_name != "nt":
+        return []
+
+    try:
+        script = load_script("acpi_temperatures.ps1", {})
+    except RuntimeError:
         return []
 
     output = hidden_output(
@@ -86,7 +87,7 @@ def read_acpi_temperatures(timeout=4.0):
 
 
 def _stop_requested():
-    if name != "nt":
+    if os_name != "nt":
         return False
 
     import msvcrt
@@ -151,17 +152,19 @@ def monitor(settings):
 
             gpus = read_nvidia_gpu(nvidia_smi, settings.helper_timeout_seconds)
             if gpus:
-                for index, (name, util, temp, used, total) in enumerate(gpus):
+                for index, (gpu_name, util, temp, used, total) in enumerate(gpus):
                     print(
                         f"GPU{index}: {util:>3} %  {temp:>3} C  "
-                        f"VRAM {used}/{total} MiB  {name}"
+                        f"VRAM {used}/{total} MiB  {gpu_name}"
                     )
             else:
                 print("GPU : NVIDIA metrics unavailable")
 
             print("=" * 72)
-            if name == "nt":
-                print("Q / Esc: return to main menu | Read-only | No diagnostic logging")
+            if os_name == "nt":
+                print(
+                    "Q / Esc: return to main menu | Read-only | No diagnostic logging"
+                )
             else:
                 print("Ctrl+C: return to main menu | Read-only | No diagnostic logging")
 

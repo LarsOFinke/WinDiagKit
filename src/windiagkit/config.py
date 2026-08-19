@@ -1,9 +1,8 @@
-from configparser import ConfigParser, Error
-from os import environ
 import sys
+from configparser import ConfigParser, Error
 from dataclasses import dataclass
+from os import environ
 from pathlib import Path
-
 
 CONFIG_ENV_VAR = "WINDIAGKIT_CONFIG"
 
@@ -34,7 +33,9 @@ def default_config_path():
     return Path(__file__).resolve().parents[2] / "winddiagkit.ini"
 
 
-def _read_value(parser, section, option, default, converter, minimum, maximum, warnings):
+def _read_value(
+    parser, section, option, default, converter, minimum, maximum, warnings
+):
     if not parser.has_option(section, option):
         return default
     try:
@@ -82,8 +83,16 @@ def _read_target(parser, default, warnings):
 
 def _read_section_values(parser, section, defaults, specifications, warnings):
     return {
-        field: _read_value(parser, section, option, getattr(defaults, field), converter,
-                           minimum, maximum, warnings)
+        field: _read_value(
+            parser,
+            section,
+            option,
+            getattr(defaults, field),
+            converter,
+            minimum,
+            maximum,
+            warnings,
+        )
         for field, option, converter, minimum, maximum in specifications
     }
 
@@ -109,8 +118,14 @@ def _network_settings(parser, defaults, warnings):
 def _event_settings(parser, defaults, warnings):
     choices = _read_choices(parser, defaults.event_window_choices, warnings)
     window = _read_value(
-        parser, "events", "default_window_minutes", defaults.event_window_minutes,
-        int, 1, 1440, warnings
+        parser,
+        "events",
+        "default_window_minutes",
+        defaults.event_window_minutes,
+        int,
+        1,
+        1440,
+        warnings,
     )
     if window not in choices:
         warnings.append(

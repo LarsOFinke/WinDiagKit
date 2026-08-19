@@ -11,6 +11,8 @@
 - Add an x86 interpreter check to the Windows build script.
 - Adopt a `src/windiagkit` package layout and a dedicated `scripts` directory.
 - Move Event Viewer PowerShell into bundled project templates.
+- Use the latest psutil release with a win32 wheel for reproducible x86 builds.
+- Cover Windows ACPI and monitor execution paths with regression tests.
 
 ## 0.1.0
 

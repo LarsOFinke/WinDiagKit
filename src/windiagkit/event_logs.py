@@ -3,7 +3,6 @@ from os import name
 from .console_utils import run_visible
 from .powershell_scripts import load_script
 
-
 LOGS = {
     "dns": "Microsoft-Windows-DNS-Client/Operational",
     "network": "Microsoft-Windows-NetworkProfile/Operational",
@@ -32,7 +31,7 @@ def _powershell(script, timeout=30.0):
 
 def _bounded_integer(name, value, minimum, maximum):
     if isinstance(value, bool) or not isinstance(value, int):
-        raise ValueError(f"{name} must be an integer")
+        raise TypeError(f"{name} must be an integer")
     if not minimum <= value <= maximum:
         raise ValueError(f"{name} must be between {minimum} and {maximum}")
     return value
