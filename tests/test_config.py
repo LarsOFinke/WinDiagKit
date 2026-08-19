@@ -2,7 +2,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from windiagkit.config import load_settings
 from windiagkit.configuration_loader import ConfigurationLoader
 from windiagkit.settings import Settings
 
@@ -16,7 +15,7 @@ class SettingsTests(unittest.TestCase):
     def test_missing_file_uses_defaults(self):
         warnings = []
 
-        settings = load_settings(warn=warnings.append)
+        settings = ConfigurationLoader(warn=warnings.append).load()
 
         self.assertEqual(settings, Settings())
         self.assertEqual(warnings, [])
@@ -28,7 +27,7 @@ class SettingsTests(unittest.TestCase):
             path = Path(directory, "winddiagkit.ini")
             path.write_text(content, encoding="utf-8")
 
-            settings = load_settings(path, warn=warnings.append)
+            settings = ConfigurationLoader(path, warn=warnings.append).load()
 
         self.assertEqual(settings.diagnostic_process_names, ())
         self.assertEqual(warnings, [])
@@ -62,7 +61,7 @@ top_process_count = 20
             path = Path(directory, "winddiagkit.ini")
             path.write_text(content, encoding="utf-8")
 
-            settings = load_settings(path)
+            settings = ConfigurationLoader(path).load()
 
         self.assertEqual(settings.default_target, "internal.example")
         self.assertEqual(settings.event_window_choices, (10, 20))
@@ -92,7 +91,7 @@ top_process_count = 100
             path = Path(directory, "winddiagkit.ini")
             path.write_text(content, encoding="utf-8")
 
-            settings = load_settings(path, warn=warnings.append)
+            settings = ConfigurationLoader(path, warn=warnings.append).load()
 
         self.assertEqual(settings.default_target, "example.com")
         self.assertEqual(settings.ping_count, 4)

@@ -5,7 +5,6 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtWidgets import QApplication
 
-from windiagkit.diagnostics.catalog import JOBS
 from windiagkit.gui.main_window import MainWindow
 from windiagkit.settings import Settings
 
@@ -24,7 +23,7 @@ class GuiSmokeTests(unittest.TestCase):
         self.application.processEvents()
 
     def test_window_exposes_every_job_and_defaults_to_checkpoint(self):
-        self.assertEqual(len(self.window._job_items), len(JOBS))
+        self.assertEqual(len(self.window._job_items), len(self.window.job_catalog.jobs))
         self.assertEqual(self.window._selected_job_key(), "checkpoint")
         self.assertTrue(self.window.window_combo.isEnabled())
         self.assertFalse(self.window.target_input.isEnabled())

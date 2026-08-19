@@ -31,7 +31,7 @@ class PowerShellRunner:
         try:
             script = self.script_loader.load(script_name, replacements)
         except RuntimeError as exc:
-            print(exc)
+            print(str(exc))
             return False
 
         if notice:

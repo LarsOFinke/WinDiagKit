@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "windiagkit"
+dynamic = ["version"]
+description = "Read-only Windows diagnostics for system health and load-test analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Lars Oliver Finke" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Win32 (MS Windows)",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "psutil==7.2.2",
+    "PyQt5==5.15.11",
+    "PyQt5-Qt5==5.15.19",
+    "PyQt5-sip==12.19.0",
+]
+
+[project.optional-dependencies]
+build = [
+    "pyinstaller==6.21.0",
+]
+dev = [
+    "pyinstaller==6.21.0",
+    "ruff==0.16.3",
+]
+
+[project.scripts]
+windiagkit = "windiagkit.cli.app:main"
+
+[project.gui-scripts]
+windiagkit-gui = "windiagkit.gui.app:main"
+
+[project.urls]
+Repository = "https://github.com/LarsOFinke/WinDiagKit"
+
+[tool.setuptools.dynamic]
+version = { attr = "windiagkit.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"windiagkit.powershell" = ["scripts/*.ps1"]
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "SIM"]

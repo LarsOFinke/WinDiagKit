@@ -1,2 +1,0 @@
--r requirements-x86.txt
-pyinstaller==6.21.0

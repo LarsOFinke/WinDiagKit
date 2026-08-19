@@ -14,14 +14,32 @@ Current version: **0.4.0**
 The live monitor and DNS resolver can partly operate on other platforms, but the
 application's supported target is Windows.
 
-## Run the GUI from Python
+## Virtual environment and Python usage
+
+Create a project-local virtual environment with a Python interpreter matching
+the target architecture. For the normal 64-bit setup on Windows:
 
 ```bat
-python -m pip install -r requirements.txt
-python src\gui_main.py
+py -3.14-64 -m venv .venv
+.venv\Scripts\activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+windiagkit-gui
 ```
 
-The original console interface remains available with `python src\main.py`.
+The editable installation provides `windiagkit-gui` for the desktop interface
+and `windiagkit` for the console interface. Use `deactivate` to leave the
+environment. A runtime-only environment can use `python -m pip install -e .`
+instead.
+
+The direct GUI source entry point remains available; the console can also run as
+a package module:
+
+```bat
+python src\gui_main.py
+python -m windiagkit
+```
+
 For automated packaging checks, `python src\gui_main.py --smoke-test` opens the
 window offscreen or onscreen and exits automatically.
 
@@ -66,7 +84,21 @@ Available settings include:
 Invalid values are reported at startup and replaced with built-in defaults.
 The complete documented template is in `winddiagkit.ini.example`.
 
-## Build x86 EXE
+## Build Windows EXE
+
+Use the script that matches the architecture of the Python interpreter and the
+target system:
+
+```bat
+scripts\build_x64.bat
+```
+
+This is the normal choice for 64-bit Windows 10 and 11. It requires 64-bit
+Python and installs the project with its `build` extra from `pyproject.toml`
+before creating `dist\WinDiagKit.exe`.
+
+The build scripts may be run from an activated matching virtual environment;
+their `python` command then uses that environment automatically.
 
 Run `scripts\build_x86.bat` with a 32-bit Python environment on `PATH`. The
 script resolves the project root automatically, rejects a 64-bit interpreter,
@@ -74,9 +106,15 @@ installs the pinned x86-compatible build dependencies, disables optional UPX
 compression, and creates the windowed `dist\WinDiagKit.exe`. PyQt5 5.15.11 and
 its SIP dependency have CPython 3.14 win32 wheels. The x86 lockfile uses Qt
 runtime 5.15.2 because it is the only release currently published with a PyPI
-win32 wheel; normal installations use the newer pinned Qt runtime. The x86 build
-also uses psutil 6.1.1, the latest release with a compatible Windows win32
-wheel, while normal installations use the version pinned in `requirements.txt`.
+win32 wheel; normal installations use the newer runtime pinned in
+`pyproject.toml`. The x86 build also uses psutil 6.1.1, the latest release with
+a compatible Windows win32 wheel. These exceptional dependencies are kept in
+the single `requirements-x86.txt` lock because package metadata cannot reliably
+select dependencies by interpreter bitness.
+
+PyInstaller builds for the architecture of the running Python interpreter; it
+does not cross-compile between x86 and x64. Both scripts fail early with a clear
+message if the wrong Python architecture is active.
 
 To customize the built application, copy `winddiagkit.ini.example` to
 `dist\winddiagkit.ini`.
@@ -117,7 +155,7 @@ Useful sequence for a load test:
 
 ## Project layout
 
-- `src/main.py` and `src/gui_main.py` - stable console and GUI entry points
+- `src/gui_main.py` - GUI/PyInstaller source entry point
 - `src/windiagkit/cli/` - console application, presentation helpers, and menus
 - `src/windiagkit/diagnostics/` - job catalog, monitoring, network, event, and
   load-test diagnostics
@@ -128,12 +166,14 @@ Useful sequence for a load test:
 - `src/windiagkit/powershell/scripts/` - focused read-only PowerShell resources
 - `scripts/` - Windows build and maintenance entry points
 - `tests/` - tests grouped to mirror the application packages
+- `docs/` - architecture, development, and diagnostic/security documentation
+- `.agents/` - concise task routing and cached project context for coding agents
 
 The application is organized around small objects with single responsibilities:
 configuration loading, immutable settings, PowerShell script loading/execution,
 diagnostic job cataloguing, Qt job execution, and individual UI widgets. Each
 class has its own module; procedural helpers are retained only for stateless
-formatting, validation, and backwards-compatible command entry points.
+formatting, validation, and straightforward console-menu flow.
 
 ## Privacy and state changes
 

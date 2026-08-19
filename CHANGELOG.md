@@ -10,6 +10,12 @@
   mirror that structure in the test suite.
 - Give every production class its own module and introduce focused configuration,
   PowerShell, and job-catalog service objects.
+- Add a dedicated x64 PyInstaller build script and architecture-specific build
+  dependency files while retaining the x86 build.
+- Add `pyproject.toml` packaging metadata, virtual-environment installation,
+  console/GUI commands, development extras, and bundled script resources.
+- Consolidate dependency files, remove legacy compatibility facades, and add
+  human and token-conscious agent documentation.
 
 ## 0.3.0 - 2026-08-19
 

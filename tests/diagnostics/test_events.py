@@ -5,7 +5,7 @@ from windiagkit.diagnostics import events
 
 
 class EventLogTests(unittest.TestCase):
-    @patch("windiagkit.diagnostics.events.run_powershell", return_value=True)
+    @patch("windiagkit.diagnostics.events._POWERSHELL_RUNNER.run", return_value=True)
     def test_operational_query_escapes_name_and_forwards_limits(self, powershell):
         successful = events.show_operational_log("Example'Log", 10, 25, 12)
 

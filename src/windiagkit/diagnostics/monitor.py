@@ -1,3 +1,4 @@
+from contextlib import suppress
 from os import name as os_name
 from os import path
 from shutil import which
@@ -6,8 +7,9 @@ from time import monotonic, sleep, strftime
 from psutil import cpu_freq, cpu_percent, net_io_counters, virtual_memory
 
 from ..cli.console import APP_NAME, clear_screen, hidden_output
-from ..powershell.loader import load_script
-from ..powershell.runner import powershell_command
+from ..powershell.powershell_runner import PowerShellRunner
+
+_POWERSHELL_RUNNER = PowerShellRunner()
 
 
 def human_bytes(value):
@@ -62,18 +64,16 @@ def read_acpi_temperatures(timeout=4.0):
         return []
 
     try:
-        script = load_script("acpi_temperatures.ps1", {})
+        script = _POWERSHELL_RUNNER.script_loader.load("acpi_temperatures.ps1", {})
     except RuntimeError:
         return []
 
-    output = hidden_output(powershell_command(script), timeout=timeout)
+    output = hidden_output(_POWERSHELL_RUNNER.command(script), timeout=timeout)
 
     values = []
     for line in output.splitlines():
-        try:
+        with suppress(ValueError):
             values.append(float(line.strip().replace(",", ".")))
-        except ValueError:
-            pass
     return values
 
 

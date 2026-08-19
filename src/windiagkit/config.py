@@ -210,7 +210,7 @@ def _read_config(config_path, warn):
     return parser
 
 
-def load_settings(path=None, warn=print):
+def _load_settings(path=None, warn=print):
     defaults = Settings()
     explicitly_selected = path is not None or bool(environ.get(CONFIG_ENV_VAR))
     config_path = Path(path) if path is not None else default_config_path()

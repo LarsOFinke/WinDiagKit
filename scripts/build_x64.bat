@@ -7,23 +7,23 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Building WinDiagKit...
+echo Building WinDiagKit for 64-bit Windows...
 python --version >nul 2>&1
 if errorlevel 1 (
     echo ERROR: Python was not found on PATH.
     popd
     exit /b 1
 )
-echo Verifying 32-bit/x86 Python...
-python -c "import struct, sys; sys.exit(0 if struct.calcsize('P') * 8 == 32 else 1)"
+echo Verifying 64-bit/x64 Python...
+python -c "import struct, sys; sys.exit(0 if struct.calcsize('P') * 8 == 64 else 1)"
 if errorlevel 1 (
-    echo ERROR: This build requires a 32-bit/x86 Python installation.
+    echo ERROR: This build requires a 64-bit/x64 Python installation.
     popd
     exit /b 1
 )
 echo.
 
-python -m pip install -r requirements-x86.txt
+python -m pip install ".[build]"
 if errorlevel 1 (
     popd
     exit /b 1

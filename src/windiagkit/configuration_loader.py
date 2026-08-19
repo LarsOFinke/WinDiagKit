@@ -1,6 +1,6 @@
 """Object-oriented configuration loading boundary."""
 
-from .config import load_settings
+from .config import _load_settings
 
 
 class ConfigurationLoader:
@@ -9,4 +9,4 @@ class ConfigurationLoader:
         self.warn = warn
 
     def load(self):
-        return load_settings(path=self.path, warn=self.warn)
+        return _load_settings(path=self.path, warn=self.warn)

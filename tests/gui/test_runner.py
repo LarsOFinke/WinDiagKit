@@ -7,7 +7,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PyQt5.QtCore import QEventLoop, QTimer
 from PyQt5.QtWidgets import QApplication
 
-from windiagkit.diagnostics.catalog import CommandSpec
+from windiagkit.diagnostics.command_spec import CommandSpec
 from windiagkit.gui.job_runner import JobRunner
 
 

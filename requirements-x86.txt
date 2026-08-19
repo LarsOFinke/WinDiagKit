@@ -1,4 +1,7 @@
-# psutil 7.x does not publish a Windows x86 wheel. 6.1.1 is the latest release
-# with a CPython 3.7+ ABI-compatible win32 wheel.
--r requirements-gui-x86.txt
+# Exceptional 32-bit Windows build lock. Normal x64 installs use pyproject.toml.
+# These older runtime wheels are the releases available for win32.
 psutil==6.1.1
+PyQt5==5.15.11
+PyQt5-Qt5==5.15.2
+PyQt5-sip==12.19.0
+pyinstaller==6.21.0

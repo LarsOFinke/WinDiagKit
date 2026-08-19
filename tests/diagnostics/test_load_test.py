@@ -13,7 +13,7 @@ from windiagkit.settings import Settings
 
 
 class DiagnosticTests(unittest.TestCase):
-    @patch("windiagkit.diagnostics.load_test.run_powershell", return_value=True)
+    @patch("windiagkit.diagnostics.load_test._POWERSHELL_RUNNER.run", return_value=True)
     def test_focused_health_checks_use_separate_scripts(self, run_powershell):
         self.assertTrue(show_system_resources(timeout=12))
         self.assertTrue(show_configuration_health(timeout=13))
@@ -27,7 +27,7 @@ class DiagnosticTests(unittest.TestCase):
             ("configuration_health.ps1", {}, 13, DIAGNOSTIC_NOTICE),
         )
 
-    @patch("windiagkit.diagnostics.load_test.run_powershell", return_value=True)
+    @patch("windiagkit.diagnostics.load_test._POWERSHELL_RUNNER.run", return_value=True)
     def test_event_triage_replaces_bounded_values(self, run_powershell):
         self.assertTrue(show_load_test_events(20, 30, 10))
 
@@ -38,7 +38,7 @@ class DiagnosticTests(unittest.TestCase):
             DIAGNOSTIC_NOTICE,
         )
 
-    @patch("windiagkit.diagnostics.load_test.run_powershell", return_value=True)
+    @patch("windiagkit.diagnostics.load_test._POWERSHELL_RUNNER.run", return_value=True)
     def test_process_names_are_encoded_as_literals(self, run_powershell):
         self.assertTrue(show_process_snapshot(("Load App", "O'Brien"), 10, 9))
 

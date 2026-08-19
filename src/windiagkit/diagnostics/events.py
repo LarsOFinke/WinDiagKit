@@ -1,5 +1,4 @@
-from ..powershell.loader import powershell_literal
-from ..powershell.runner import run_powershell
+from ..powershell.powershell_runner import PowerShellRunner
 from ..validation import bounded_integer
 
 LOGS = {
@@ -10,16 +9,17 @@ LOGS = {
 
 
 EVENT_NOTICE = "Read-only Event Viewer query. Nothing is exported or saved."
+_POWERSHELL_RUNNER = PowerShellRunner()
 
 
 def show_operational_log(log_name, minutes=15, max_events=100, timeout=30.0):
     # The log may exist but be disabled. We report that without changing its state.
     minutes = bounded_integer("minutes", minutes, 1, 1440)
     max_events = bounded_integer("max_events", max_events, 1, 1000)
-    return run_powershell(
+    return _POWERSHELL_RUNNER.run(
         "operational_log.ps1",
         {
-            "LOG_NAME": powershell_literal(log_name),
+            "LOG_NAME": _POWERSHELL_RUNNER.script_loader.literal(log_name),
             "MINUTES": minutes,
             "MAX_EVENTS": max_events,
         },
@@ -31,7 +31,7 @@ def show_operational_log(log_name, minutes=15, max_events=100, timeout=30.0):
 def show_system_warnings_errors(minutes=15, max_events=100, timeout=30.0):
     minutes = bounded_integer("minutes", minutes, 1, 1440)
     max_events = bounded_integer("max_events", max_events, 1, 1000)
-    return run_powershell(
+    return _POWERSHELL_RUNNER.run(
         "system_warnings_errors.ps1",
         {"MINUTES": minutes, "MAX_EVENTS": max_events},
         timeout,
