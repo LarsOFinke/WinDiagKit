@@ -29,7 +29,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-python -m PyInstaller --clean --onefile --console --name WinDiagKit src\main.py
+python -m PyInstaller --clean --noconfirm --noupx --onefile --console --paths src --name WinDiagKit src\main.py
 if errorlevel 1 (
     popd
     exit /b 1
@@ -41,4 +41,6 @@ echo.
 echo Copy winddiagkit.ini.example to dist\winddiagkit.ini to customize the EXE.
 echo Note: PyInstaller --onefile extracts its runtime to a temporary directory.
 echo WinDiagKit itself does not export or persist collected diagnostic data.
+echo SHA256:
+certutil -hashfile dist\WinDiagKit.exe SHA256
 popd

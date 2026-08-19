@@ -6,7 +6,8 @@ APP_NAME = "WinDiagKit"
 
 
 def clear_screen():
-    os.system("cls" if os.name == "nt" else "clear")
+    # ANSI terminal control sequences avoid launching a shell just to redraw UI.
+    print("\033[2J\033[H", end="")
 
 
 def pause(message="Press Enter to continue..."):

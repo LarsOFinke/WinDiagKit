@@ -50,7 +50,8 @@ The complete documented template is in `winddiagkit.ini.example`.
 
 Run `scripts\build_x86.bat` with a 32-bit Python environment on `PATH`. The
 script resolves the project root automatically, rejects a 64-bit interpreter,
-installs the pinned build dependencies, and creates `dist\WinDiagKit.exe`.
+installs the pinned build dependencies, disables optional UPX compression, and
+creates `dist\WinDiagKit.exe`.
 
 To customize the built application, copy `winddiagkit.ini.example` to
 `dist\winddiagkit.ini`.
@@ -85,6 +86,25 @@ screenshotted.
 
 PyInstaller's `--onefile` mode extracts its runtime to a temporary directory;
 WinDiagKit itself does not export or persist collected diagnostic data.
+
+## Security and antivirus review
+
+WinDiagKit has no persistence, installer, service, registry, privilege-
+escalation, download, obfuscated-payload, or self-modifying behavior. Its
+diagnostic actions are visible and intentional: it may invoke Windows
+`ipconfig`, `ping`, `tracert`, PowerShell `Get-WinEvent`/CIM queries, and an
+installed `nvidia-smi` executable. User targets are passed as argument-list
+elements, not interpolated into a shell command.
+
+No software can guarantee that every antivirus engine will accept an unsigned
+PyInstaller executable. One-file PyInstaller bundles unpack native support
+files into a temporary `_MEI...` directory at launch, which is a known source
+of heuristic scrutiny. The build disables UPX compression to avoid an
+additional packer signal. For target-system analysis, provide the SHA-256 hash
+printed by the build script, the source commit, and the EXE from a clean build
+machine. If enterprise policy permits, Authenticode-sign the EXE; never ask a
+recipient to disable antivirus protection. Submit any suspected false positive
+to the relevant vendor for analysis.
 
 ## License
 
