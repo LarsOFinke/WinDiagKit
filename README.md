@@ -106,7 +106,7 @@ installs the pinned x86-compatible build dependencies, disables optional UPX
 compression, and creates the windowed `dist\WinDiagKit.exe`. PyQt5 5.15.11 and
 its SIP dependency have CPython 3.14 win32 wheels. The x86 lockfile uses Qt
 runtime 5.15.2 because it is the only release currently published with a PyPI
-win32 wheel; normal installations use the newer runtime pinned in
+win32 wheel; normal installations use a compatible Qt 5.15 runtime selected by
 `pyproject.toml`. The x86 build also uses psutil 6.1.1, the latest release with
 a compatible Windows win32 wheel. These exceptional dependencies are kept in
 the single `requirements-x86.txt` lock because package metadata cannot reliably

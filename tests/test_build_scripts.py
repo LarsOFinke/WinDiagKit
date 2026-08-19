@@ -36,6 +36,7 @@ class BuildScriptTests(unittest.TestCase):
 
         self.assertIn('windiagkit = "windiagkit.cli.app:main"', pyproject)
         self.assertIn('windiagkit-gui = "windiagkit.gui.app:main"', pyproject)
+        self.assertIn('"PyQt5-Qt5>=5.15.2,<5.16"', pyproject)
         self.assertIn('"windiagkit.powershell" = ["scripts/*.ps1"]', pyproject)
 
 

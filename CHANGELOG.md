@@ -16,6 +16,8 @@
   console/GUI commands, development extras, and bundled script resources.
 - Consolidate dependency files, remove legacy compatibility facades, and add
   human and token-conscious agent documentation.
+- Relax the normal Qt runtime pin to a compatible 5.15 range so pip can resolve
+  the wheel available for the active Python/platform.
 
 ## 0.3.0 - 2026-08-19
 
