@@ -14,7 +14,7 @@ _POWERSHELL_RUNNER = PowerShellRunner()
 
 def show_operational_log(log_name, minutes=15, max_events=100, timeout=30.0):
     # The log may exist but be disabled. We report that without changing its state.
-    minutes = bounded_integer("minutes", minutes, 1, 1440)
+    minutes = bounded_integer("minutes", minutes, 1, 10080)
     max_events = bounded_integer("max_events", max_events, 1, 1000)
     return _POWERSHELL_RUNNER.run(
         "operational_log.ps1",
@@ -29,7 +29,7 @@ def show_operational_log(log_name, minutes=15, max_events=100, timeout=30.0):
 
 
 def show_system_warnings_errors(minutes=15, max_events=100, timeout=30.0):
-    minutes = bounded_integer("minutes", minutes, 1, 1440)
+    minutes = bounded_integer("minutes", minutes, 1, 10080)
     max_events = bounded_integer("max_events", max_events, 1, 1000)
     return _POWERSHELL_RUNNER.run(
         "system_warnings_errors.ps1",

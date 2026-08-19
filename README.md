@@ -78,12 +78,16 @@ Available settings include:
 - default network target, ping count, and ping timeout
 - traceroute hop limit and per-hop timeout
 - overall network command timeout
-- Event Viewer time-window choices, maximum results, and query timeout
+- Event Viewer maximum results and query timeout for console use
 - monitor sampling, ACPI refresh, and helper-command intervals
 - process names and process-table size for load-test diagnostic snapshots
 
 Invalid values are reported at startup and replaced with built-in defaults.
 The complete documented template is in `winddiagkit.ini.example`.
+
+The GUI offers its own event-log lookback presets: **last 15 minutes, hour,
+day, or week**. This selection is independent of the INI and applies to the
+next Event Viewer or checkpoint run.
 
 ## Build Windows EXE
 

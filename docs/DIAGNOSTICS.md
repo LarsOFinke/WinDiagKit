@@ -13,6 +13,10 @@ Network jobs create ordinary DNS, ICMP, and traceroute traffic. Event and
 configuration output may contain sensitive host names, addresses, account data,
 or device details. Treat copied output and screenshots accordingly.
 
+For Event Viewer jobs, the GUI provides fixed lookback choices for the last 15
+minutes, hour, day, and week. The selected value is passed only to that run and
+does not require an INI change.
+
 PowerShell diagnostics execute the visible bundled `.ps1` resources with
 `-File`; inputs are separate arguments. WinDiagKit does not use inline or encoded
 commands and does not bypass Windows execution policy.

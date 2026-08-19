@@ -62,6 +62,17 @@ class GuiJobTests(unittest.TestCase):
             "Microsoft-Windows-DNS-Client/Operational",
         )
 
+    def test_event_jobs_allow_a_week_lookback(self):
+        command = self.catalog.build_commands(
+            "system_events", self.settings, minutes=7 * 24 * 60
+        )[0]
+
+        minutes_index = command.command.index("-Minutes")
+        self.assertEqual(command.command[minutes_index + 1], "10080")
+
+        with self.assertRaises(ValueError):
+            self.catalog.build_commands("system_events", self.settings, minutes=10081)
+
     def test_ping_is_an_argument_list_for_both_families(self):
         commands = self.catalog.build_commands(
             "ping", self.settings, target="host.example"

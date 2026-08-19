@@ -231,7 +231,7 @@ def _build_job_commands(job_key, settings, target=None, minutes=None):
     event_minutes = settings.event_window_minutes
     if job.uses_event_window:
         event_minutes = settings.event_window_minutes if minutes is None else minutes
-        event_minutes = bounded_integer("minutes", event_minutes, 1, 1440)
+        event_minutes = bounded_integer("minutes", event_minutes, 1, 10080)
 
     if job_key == "checkpoint":
         return (

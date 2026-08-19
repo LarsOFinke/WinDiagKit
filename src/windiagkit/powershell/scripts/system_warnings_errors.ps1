@@ -1,5 +1,5 @@
 param(
-    [ValidateRange(1, 1440)]
+    [ValidateRange(1, 10080)]
     [int]$Minutes = 15,
     [ValidateRange(1, 1000)]
     [int]$MaxEvents = 100

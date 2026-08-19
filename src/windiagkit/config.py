@@ -46,13 +46,13 @@ def _read_choices(parser, default, warnings):
         )
         if not values or len(set(values)) != len(values):
             raise ValueError
-        if any(value < 1 or value > 1440 for value in values):
+        if any(value < 1 or value > 10080 for value in values):
             raise ValueError
         return values
     except (Error, ValueError):
         warnings.append(
             "[events] window_choices must be unique comma-separated minutes from 1 to "
-            f"1440; using {','.join(map(str, default))}."
+            f"10080; using {','.join(map(str, default))}."
         )
         return default
 
@@ -108,7 +108,7 @@ def _event_settings(parser, defaults, warnings):
         defaults.event_window_minutes,
         int,
         1,
-        1440,
+        10080,
         warnings,
     )
     if window not in choices:

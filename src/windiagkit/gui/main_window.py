@@ -29,6 +29,7 @@ from .. import __version__
 from ..cli.console import APP_NAME
 from ..diagnostics.job_catalog import JobCatalog
 from ..diagnostics.monitor import human_bytes
+from .event_windows import DEFAULT_EVENT_WINDOW_MINUTES, EVENT_WINDOW_OPTIONS
 from .job_runner import JobRunner
 from .log_highlighter import LogHighlighter
 from .metric_card import MetricCard
@@ -132,10 +133,11 @@ class MainWindow(QMainWindow):
         self.target_input = QLineEdit(self.settings.default_target)
         self.target_input.setPlaceholderText("Host name or IP address")
         self.window_combo = QComboBox()
-        for value in self.settings.event_window_choices:
-            self.window_combo.addItem(f"Last {value} minutes", value)
-        default_index = self.window_combo.findData(self.settings.event_window_minutes)
-        self.window_combo.setCurrentIndex(max(0, default_index))
+        for label, minutes in EVENT_WINDOW_OPTIONS:
+            self.window_combo.addItem(label, minutes)
+        self.window_combo.setCurrentIndex(
+            self.window_combo.findData(DEFAULT_EVENT_WINDOW_MINUTES)
+        )
         form.addRow("Network target", self.target_input)
         form.addRow("Event window", self.window_combo)
         layout.addLayout(form)

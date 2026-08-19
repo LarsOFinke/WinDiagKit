@@ -7,6 +7,7 @@ traceroute_timeout_ms = 1000
 command_timeout_seconds = 30
 
 [events]
+# Console-only default and choices. The GUI has built-in 15-minute/hour/day/week presets.
 default_window_minutes = 15
 window_choices = 5, 15, 30, 60
 max_events = 100

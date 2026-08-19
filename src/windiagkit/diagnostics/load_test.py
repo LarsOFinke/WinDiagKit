@@ -18,7 +18,7 @@ def show_configuration_health(timeout=30.0):
 
 
 def show_load_test_events(minutes=15, max_events=100, timeout=30.0):
-    minutes = bounded_integer("minutes", minutes, 1, 1440)
+    minutes = bounded_integer("minutes", minutes, 1, 10080)
     max_events = bounded_integer("max_events", max_events, 1, 1000)
     return _POWERSHELL_RUNNER.run(
         "load_test_events.ps1",
