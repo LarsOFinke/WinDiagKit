@@ -1,5 +1,5 @@
-import os
-import subprocess
+from os import name
+from subprocess import SubprocessError, TimeoutExpired, list2cmdline, run
 
 
 APP_NAME = "WinDiagKit"
@@ -16,16 +16,16 @@ def pause(message="Press Enter to continue..."):
 
 def run_visible(command, timeout=None):
     """Run a command in the current console. Output is not captured or saved."""
-    print("\n> " + subprocess.list2cmdline(command))
+    print("\n> " + list2cmdline(command))
     try:
-        result = subprocess.run(command, check=False, timeout=timeout)
+        result = run(command, check=False, timeout=timeout)
     except FileNotFoundError:
         print(f"Command not found: {command[0]}")
         return False
     except OSError as exc:
         print(f"Could not start {command[0]}: {exc}")
         return False
-    except subprocess.TimeoutExpired:
+    except TimeoutExpired:
         print(f"Command timed out after {timeout:g} seconds.")
         return False
     except KeyboardInterrupt:
@@ -40,9 +40,14 @@ def run_visible(command, timeout=None):
 
 def hidden_output(command, timeout=3):
     """Run a helper command and keep stdout only in RAM."""
-    flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+    if name == "nt":
+        from subprocess import CREATE_NO_WINDOW
+
+        flags = CREATE_NO_WINDOW
+    else:
+        flags = 0
     try:
-        result = subprocess.run(
+        result = run(
             command,
             capture_output=True,
             text=True,
@@ -51,5 +56,5 @@ def hidden_output(command, timeout=3):
             creationflags=flags,
         )
         return result.stdout.strip()
-    except (OSError, subprocess.SubprocessError):
+    except (OSError, SubprocessError):
         return ""

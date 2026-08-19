@@ -6,7 +6,7 @@ from windiagkit import network_tools
 
 class NetworkCommandTests(unittest.TestCase):
     @patch("windiagkit.network_tools.run_visible")
-    @patch.object(network_tools.os, "name", "nt")
+    @patch("windiagkit.network_tools.name", "nt")
     def test_ping_has_family_and_time_limits(self, run):
         network_tools.ping_test("host.example", 2, 500, 10)
 
@@ -25,7 +25,7 @@ class NetworkCommandTests(unittest.TestCase):
         )
 
     @patch("windiagkit.network_tools.run_visible")
-    @patch.object(network_tools.os, "name", "nt")
+    @patch("windiagkit.network_tools.name", "nt")
     def test_traceroute_has_hop_and_time_limits(self, run):
         network_tools.traceroute_test("host.example", 12, 750, 20)
 

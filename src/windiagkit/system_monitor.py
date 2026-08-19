@@ -1,8 +1,8 @@
-import os
-import shutil
-import time
+from os import name, path
+from shutil import which
+from time import monotonic, sleep, strftime
 
-import psutil
+from psutil import cpu_freq, cpu_percent, net_io_counters, virtual_memory
 
 from .console_utils import APP_NAME, clear_screen, hidden_output
 
@@ -17,15 +17,15 @@ def human_bytes(value):
 
 
 def find_nvidia_smi():
-    path = shutil.which("nvidia-smi")
-    if path:
-        return path
+    nvidia_path = which("nvidia-smi")
+    if nvidia_path:
+        return nvidia_path
 
     for candidate in (
         r"C:\Windows\System32\nvidia-smi.exe",
         r"C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe",
     ):
-        if os.path.exists(candidate):
+        if path.exists(candidate):
             return candidate
     return None
 
@@ -55,7 +55,7 @@ def read_nvidia_gpu(nvidia_smi, timeout=3.0):
 
 def read_acpi_temperatures(timeout=4.0):
     """Best-effort ACPI thermal zones; these are not guaranteed CPU package temps."""
-    if os.name != "nt":
+    if name != "nt":
         return []
 
     output = hidden_output(
@@ -85,7 +85,7 @@ def read_acpi_temperatures(timeout=4.0):
 
 
 def _stop_requested():
-    if os.name != "nt":
+    if name != "nt":
         return False
 
     import msvcrt
@@ -99,23 +99,23 @@ def _stop_requested():
 
 def monitor(settings):
     nvidia_smi = find_nvidia_smi()
-    previous_net = psutil.net_io_counters()
-    previous_time = time.monotonic()
+    previous_net = net_io_counters()
+    previous_time = monotonic()
 
-    psutil.cpu_percent(interval=None)
-    time.sleep(settings.sample_seconds)
+    cpu_percent(interval=None)
+    sleep(settings.sample_seconds)
 
     acpi_temps = []
     next_acpi_refresh = 0.0
 
     try:
         while True:
-            loop_started = time.monotonic()
+            loop_started = monotonic()
             now = loop_started
 
-            cpu = psutil.cpu_percent(interval=None)
-            memory = psutil.virtual_memory()
-            net = psutil.net_io_counters()
+            cpu = cpu_percent(interval=None)
+            memory = virtual_memory()
+            net = net_io_counters()
 
             elapsed = max(now - previous_time, 0.001)
             rx_rate = (net.bytes_recv - previous_net.bytes_recv) / elapsed
@@ -129,11 +129,11 @@ def monitor(settings):
 
             clear_screen()
             print(f"{APP_NAME} | Live System Monitor")
-            print(time.strftime("%Y-%m-%d %H:%M:%S"))
+            print(strftime("%Y-%m-%d %H:%M:%S"))
             print("=" * 72)
             print(f"CPU : {cpu:5.1f} %")
 
-            freq = psutil.cpu_freq()
+            freq = cpu_freq()
             if freq and freq.current:
                 print(f"Clock: {freq.current:7.0f} MHz")
 
@@ -159,16 +159,16 @@ def monitor(settings):
                 print("GPU : NVIDIA metrics unavailable")
 
             print("=" * 72)
-            if os.name == "nt":
+            if name == "nt":
                 print("Q / Esc: return to main menu | Read-only | No diagnostic logging")
             else:
                 print("Ctrl+C: return to main menu | Read-only | No diagnostic logging")
 
             end_at = loop_started + settings.sample_seconds
-            while time.monotonic() < end_at:
+            while monotonic() < end_at:
                 if _stop_requested():
                     return
-                time.sleep(0.05)
+                sleep(0.05)
 
     except KeyboardInterrupt:
         return

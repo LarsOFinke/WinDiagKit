@@ -8,14 +8,14 @@ from windiagkit.console_utils import hidden_output, run_visible
 
 
 class RunVisibleTests(unittest.TestCase):
-    @patch("windiagkit.console_utils.subprocess.run")
+    @patch("windiagkit.console_utils.run")
     def test_success(self, run):
         run.return_value = subprocess.CompletedProcess(["tool"], 0)
 
         self.assertTrue(run_visible(["tool"], timeout=2))
         run.assert_called_once_with(["tool"], check=False, timeout=2)
 
-    @patch("windiagkit.console_utils.subprocess.run", side_effect=FileNotFoundError)
+    @patch("windiagkit.console_utils.run", side_effect=FileNotFoundError)
     def test_missing_command_is_reported(self, run):
         output = StringIO()
 
@@ -25,7 +25,7 @@ class RunVisibleTests(unittest.TestCase):
         self.assertFalse(successful)
         self.assertIn("Command not found", output.getvalue())
 
-    @patch("windiagkit.console_utils.subprocess.run")
+    @patch("windiagkit.console_utils.run")
     def test_nonzero_exit_is_reported(self, run):
         run.return_value = subprocess.CompletedProcess(["tool"], 5)
         output = StringIO()
@@ -36,7 +36,7 @@ class RunVisibleTests(unittest.TestCase):
         self.assertFalse(successful)
         self.assertIn("status 5", output.getvalue())
 
-    @patch("windiagkit.console_utils.subprocess.run", side_effect=KeyboardInterrupt)
+    @patch("windiagkit.console_utils.run", side_effect=KeyboardInterrupt)
     def test_keyboard_interrupt_returns_to_application(self, run):
         output = StringIO()
 
@@ -46,7 +46,7 @@ class RunVisibleTests(unittest.TestCase):
         self.assertFalse(successful)
         self.assertIn("interrupted", output.getvalue())
 
-    @patch("windiagkit.console_utils.subprocess.run")
+    @patch("windiagkit.console_utils.run")
     def test_hidden_output_returns_stdout(self, run):
         run.return_value = subprocess.CompletedProcess(["tool"], 0, " value \n", "")
 

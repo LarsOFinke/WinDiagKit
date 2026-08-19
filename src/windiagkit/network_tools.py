@@ -1,11 +1,11 @@
-import os
-import socket
+from os import name
+from socket import AF_INET, AF_INET6, SOCK_STREAM, gaierror, getaddrinfo
 
 from .console_utils import run_visible
 
 
 def _windows_only():
-    if os.name == "nt":
+    if name == "nt":
         return True
     print("This function is intended for Windows.")
     return False
@@ -20,14 +20,14 @@ def resolve_addresses(host):
     print(f"\nDNS resolution for: {host}")
     print("A/AAAA results do not prove which IP family reached the DNS resolver.\n")
 
-    for family, label in ((socket.AF_INET, "IPv4 / A"), (socket.AF_INET6, "IPv6 / AAAA")):
+    for family, label in ((AF_INET, "IPv4 / A"), (AF_INET6, "IPv6 / AAAA")):
         try:
-            entries = socket.getaddrinfo(host, None, family, socket.SOCK_STREAM)
+            entries = getaddrinfo(host, None, family, SOCK_STREAM)
             addresses = sorted({entry[4][0] for entry in entries})
             print(f"{label}:")
             for address in addresses:
                 print(f"  {address}")
-        except socket.gaierror as exc:
+        except gaierror as exc:
             print(f"{label}: resolution failed ({exc})")
 
 

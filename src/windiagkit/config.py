@@ -1,5 +1,5 @@
-import configparser
-import os
+from configparser import ConfigParser, Error
+from os import environ
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -26,7 +26,7 @@ class Settings:
 
 
 def default_config_path():
-    override = os.environ.get(CONFIG_ENV_VAR)
+    override = environ.get(CONFIG_ENV_VAR)
     if override:
         return Path(override).expanduser()
     if getattr(sys, "frozen", False):
@@ -42,7 +42,7 @@ def _read_value(parser, section, option, default, converter, minimum, maximum, w
         if not minimum <= value <= maximum:
             raise ValueError
         return value
-    except (configparser.Error, ValueError):
+    except (Error, ValueError):
         warnings.append(
             f"[{section}] {option} must be between {minimum} and {maximum}; "
             f"using {default}."
@@ -64,7 +64,7 @@ def _read_choices(parser, default, warnings):
         if any(value < 1 or value > 1440 for value in values):
             raise ValueError
         return values
-    except (configparser.Error, ValueError):
+    except (Error, ValueError):
         warnings.append(
             "[events] window_choices must be unique comma-separated minutes from 1 to "
             f"1440; using {','.join(map(str, default))}."
@@ -74,19 +74,19 @@ def _read_choices(parser, default, warnings):
 
 def load_settings(path=None, warn=print):
     defaults = Settings()
-    explicitly_selected = path is not None or bool(os.environ.get(CONFIG_ENV_VAR))
+    explicitly_selected = path is not None or bool(environ.get(CONFIG_ENV_VAR))
     config_path = Path(path) if path is not None else default_config_path()
     if not config_path.is_file():
         if explicitly_selected:
             warn(f"Warning: configuration file not found: {config_path}")
         return defaults
 
-    parser = configparser.ConfigParser(interpolation=None)
+    parser = ConfigParser(interpolation=None)
     warnings = []
     try:
         with config_path.open(encoding="utf-8") as config_file:
             parser.read_file(config_file)
-    except (OSError, UnicodeError, configparser.Error) as exc:
+    except (OSError, UnicodeError, Error) as exc:
         warn(f"Warning: could not read configuration {config_path}: {exc}")
         return defaults
 

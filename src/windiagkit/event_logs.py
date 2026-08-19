@@ -1,4 +1,4 @@
-import os
+from os import name
 
 from .console_utils import run_visible
 
@@ -11,7 +11,7 @@ LOGS = {
 
 
 def _powershell(script, timeout=30.0):
-    if os.name != "nt":
+    if name != "nt":
         print("This function is intended for Windows.")
         return False
 
