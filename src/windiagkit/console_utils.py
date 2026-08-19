@@ -13,9 +13,10 @@ def pause(message="Press Enter to continue..."):
     input(f"\n{message}")
 
 
-def run_visible(command, timeout=None):
+def run_visible(command, timeout=None, display_command=None):
     """Run a command in the current console. Output is not captured or saved."""
-    print("\n> " + list2cmdline(command))
+    displayed = display_command or list2cmdline(command)
+    print("\n> " + displayed)
     try:
         result = run(command, check=False, timeout=timeout)
     except FileNotFoundError:

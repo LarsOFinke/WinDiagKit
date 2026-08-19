@@ -3,7 +3,7 @@
 WinDiagKit is a small, read-only Windows troubleshooting console for live system
 metrics, IPv4/IPv6 checks, and selected Event Viewer logs.
 
-Current version: **0.2.0**
+Current version: **0.3.0**
 
 ## Supported environment
 
@@ -42,6 +42,7 @@ Available settings include:
 - overall network command timeout
 - Event Viewer time-window choices, maximum results, and query timeout
 - monitor sampling, ACPI refresh, and helper-command intervals
+- process names and process-table size for load-test diagnostic snapshots
 
 Invalid values are reported at startup and replaced with built-in defaults.
 The complete documented template is in `winddiagkit.ini.example`.
@@ -69,11 +70,36 @@ python -m unittest discover -v
 Windows commands are mocked in unit tests so the suite is safe to run on other
 platforms. A real Windows smoke test is still recommended for release builds.
 
+## Load-test diagnostics
+
+The **Load-test diagnostics** menu provides a read-only checkpoint before or
+after reproducing a problem. Resource readiness and hardware/configuration
+health are separate checks, so each can be run independently. Together they
+cover memory and page-file state, disk capacity and health, pending restart
+indicators, the active power plan, device errors, and automatic services.
+Event triage focuses on application crashes/hangs, resource exhaustion,
+hardware, storage, graphics, power, service, and core network providers.
+
+For easier identification of affected programs, set `process_names` in the
+`[diagnostics]` section of `winddiagkit.ini`. Use comma-separated executable
+names with or without `.exe`; do not enter paths. A complete checkpoint displays
+all results in the console and does not modify services, power settings, logs,
+registry values, or files.
+
+Useful sequence for a load test:
+
+1. Run a complete diagnostic checkpoint immediately before the test.
+2. Run the live system monitor during the test.
+3. Run another complete checkpoint directly after the issue occurs.
+4. Compare timestamps, warnings, event IDs, and target-process resource values.
+
 ## Project layout
 
 - `src/main.py` - direct source and PyInstaller entry point
 - `src/windiagkit/` - application package and diagnostic modules
-- `src/windiagkit/powershell/` - read-only Event Viewer script templates
+- `src/windiagkit/powershell/` - focused read-only PowerShell diagnostics
+- `src/windiagkit/diagnostics.py` - load-test diagnostic orchestration
+- `src/windiagkit/powershell_runner.py` - shared PowerShell execution boundary
 - `scripts/` - Windows build and maintenance scripts
 - `tests/` - automated unit tests
 

@@ -6,6 +6,7 @@ from time import monotonic, sleep, strftime
 from psutil import cpu_freq, cpu_percent, net_io_counters, virtual_memory
 
 from .console_utils import APP_NAME, clear_screen, hidden_output
+from .powershell_runner import powershell_command
 from .powershell_scripts import load_script
 
 
@@ -65,17 +66,7 @@ def read_acpi_temperatures(timeout=4.0):
     except RuntimeError:
         return []
 
-    output = hidden_output(
-        [
-            "powershell.exe",
-            "-NoLogo",
-            "-NoProfile",
-            "-NonInteractive",
-            "-Command",
-            script,
-        ],
-        timeout=timeout,
-    )
+    output = hidden_output(powershell_command(script), timeout=timeout)
 
     values = []
     for line in output.splitlines():

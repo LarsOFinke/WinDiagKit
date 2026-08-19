@@ -22,6 +22,8 @@ class Settings:
     sample_seconds: float = 1.0
     acpi_refresh_seconds: float = 5.0
     helper_timeout_seconds: float = 4.0
+    diagnostic_process_names: tuple = ()
+    top_process_count: int = 15
 
 
 def default_config_path():
@@ -161,6 +163,60 @@ def _monitor_settings(parser, defaults, warnings):
     )
 
 
+def _read_process_names(parser, default, warnings):
+    if not parser.has_option("diagnostics", "process_names"):
+        return default
+
+    configured_names = parser.get("diagnostics", "process_names").strip()
+    if not configured_names:
+        return ()
+
+    try:
+        names = []
+        seen = set()
+        for item in configured_names.split(","):
+            process_name = _normalize_process_name(item)
+            if process_name.casefold() not in seen:
+                names.append(process_name)
+                seen.add(process_name.casefold())
+        if len(names) > 20:
+            raise ValueError
+        return tuple(names)
+    except ValueError:
+        warnings.append(
+            "[diagnostics] process_names must contain at most 20 executable names "
+            f"without paths; using {','.join(default) or 'no targets'}."
+        )
+        return default
+
+
+def _normalize_process_name(value):
+    process_name = value.strip()
+    if process_name.lower().endswith(".exe"):
+        process_name = process_name[:-4]
+    if (
+        not process_name
+        or len(process_name) > 128
+        or any(ord(char) < 32 or char in "\\/" for char in process_name)
+    ):
+        raise ValueError
+    return process_name
+
+
+def _diagnostic_settings(parser, defaults, warnings):
+    values = _read_section_values(
+        parser,
+        "diagnostics",
+        defaults,
+        (("top_process_count", "top_process_count", int, 5, 50),),
+        warnings,
+    )
+    values["diagnostic_process_names"] = _read_process_names(
+        parser, defaults.diagnostic_process_names, warnings
+    )
+    return values
+
+
 def _read_config(config_path, warn):
     parser = ConfigParser(interpolation=None)
     try:
@@ -189,6 +245,7 @@ def load_settings(path=None, warn=print):
     values = _network_settings(parser, defaults, warnings)
     values.update(_event_settings(parser, defaults, warnings))
     values.update(_monitor_settings(parser, defaults, warnings))
+    values.update(_diagnostic_settings(parser, defaults, warnings))
     for message in warnings:
         warn(f"Warning: {message}")
     return Settings(**values)

@@ -1,5 +1,12 @@
 from . import __version__
 from .console_utils import APP_NAME, clear_screen, pause
+from .diagnostics import (
+    show_configuration_health,
+    show_load_test_checkpoint,
+    show_load_test_events,
+    show_process_snapshot,
+    show_system_resources,
+)
 from .event_logs import (
     show_dns_log,
     show_network_profile_log,
@@ -106,6 +113,49 @@ def event_log_menu(settings):
                 minutes = int(value)
 
 
+def diagnostic_menu(settings):
+    targets = ", ".join(settings.diagnostic_process_names) or "not configured"
+
+    while True:
+        header("Load-Test Diagnostics")
+        print(f"Configured process targets: {targets}")
+        print("Read-only: results are displayed only; nothing is exported.\n")
+        print("[1] System resources and readiness")
+        print("[2] Hardware and configuration health")
+        print("[3] Load-relevant warnings and errors")
+        print("[4] Process resource snapshot")
+        print("[5] Complete diagnostic checkpoint")
+        print("\n[0] Back")
+
+        choice = input("\nSelect: ").strip()
+
+        if choice == "0":
+            return
+        if choice == "1":
+            show_system_resources(settings.command_timeout_seconds)
+            pause()
+        elif choice == "2":
+            show_configuration_health(settings.command_timeout_seconds)
+            pause()
+        elif choice == "3":
+            show_load_test_events(
+                settings.event_window_minutes,
+                settings.max_events,
+                settings.event_query_timeout_seconds,
+            )
+            pause()
+        elif choice == "4":
+            show_process_snapshot(
+                settings.diagnostic_process_names,
+                settings.top_process_count,
+                settings.command_timeout_seconds,
+            )
+            pause()
+        elif choice == "5":
+            show_load_test_checkpoint(settings)
+            pause()
+
+
 def main_menu(settings):
     while True:
         header("Main Menu")
@@ -114,7 +164,8 @@ def main_menu(settings):
         print("[1] Live system monitor")
         print("[2] Network troubleshooting")
         print("[3] Windows Event Logs")
-        print("[4] Show ipconfig /all")
+        print("[4] Load-test diagnostics")
+        print("[5] Show ipconfig /all")
         print("\n[0] Exit")
 
         choice = input("\nSelect: ").strip()
@@ -128,5 +179,7 @@ def main_menu(settings):
         elif choice == "3":
             event_log_menu(settings)
         elif choice == "4":
+            diagnostic_menu(settings)
+        elif choice == "5":
             show_ipconfig(settings.command_timeout_seconds)
             pause()

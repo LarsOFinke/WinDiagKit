@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 - 2026-08-19
+
+- Add read-only system-readiness, focused event-triage, and process-snapshot
+  diagnostics for before/after load-test checkpoints.
+- Add configurable target-process names and snapshot table size.
+- Split resource and configuration checks into focused scripts and centralize
+  validated PowerShell execution.
+
 ## 0.2.0 - 2026-08-19
 
 - Add validated INI configuration for network, event log, and monitor settings.

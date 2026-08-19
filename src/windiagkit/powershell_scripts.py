@@ -4,7 +4,22 @@ from re import findall
 SCRIPT_DIRECTORY = Path(__file__).resolve().with_name("powershell")
 
 
+def powershell_literal(value):
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def powershell_array(values):
+    return ", ".join(powershell_literal(value) for value in values)
+
+
 def load_script(script_name, replacements):
+    if (
+        not script_name.lower().endswith(".ps1")
+        or "/" in script_name
+        or "\\" in script_name
+    ):
+        raise RuntimeError(f"Invalid PowerShell script name: {script_name}")
+
     script_path = SCRIPT_DIRECTORY / script_name
     try:
         script = script_path.read_text(encoding="utf-8")

@@ -16,3 +16,8 @@ query_timeout_seconds = 30
 sample_seconds = 1.0
 acpi_refresh_seconds = 5.0
 helper_timeout_seconds = 4.0
+
+[diagnostics]
+# Comma-separated executable names, with or without .exe; paths are not accepted.
+process_names =
+top_process_count = 15

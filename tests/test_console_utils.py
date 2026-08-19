@@ -15,6 +15,22 @@ class RunVisibleTests(unittest.TestCase):
         self.assertTrue(run_visible(["tool"], timeout=2))
         run.assert_called_once_with(["tool"], check=False, timeout=2)
 
+    @patch("windiagkit.console_utils.run")
+    def test_safe_display_label_does_not_change_execution(self, run):
+        run.return_value = subprocess.CompletedProcess(["tool", "secret"], 0)
+        output = StringIO()
+
+        with redirect_stdout(output):
+            self.assertTrue(
+                run_visible(
+                    ["tool", "secret"], display_command="tool <validated input>"
+                )
+            )
+
+        self.assertIn("tool <validated input>", output.getvalue())
+        self.assertNotIn("secret", output.getvalue())
+        run.assert_called_once_with(["tool", "secret"], check=False, timeout=None)
+
     @patch("windiagkit.console_utils.run", side_effect=FileNotFoundError)
     def test_missing_command_is_reported(self, run):
         output = StringIO()
