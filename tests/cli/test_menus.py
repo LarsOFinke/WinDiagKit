@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from windiagkit.cli.menus import diagnostic_menu, main_menu
-from windiagkit.config import Settings
+from windiagkit.settings import Settings
 
 
 class MenuTests(unittest.TestCase):

@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch
 
-from windiagkit.config import Settings
 from windiagkit.diagnostics.load_test import (
     DIAGNOSTIC_NOTICE,
     show_configuration_health,
@@ -10,6 +9,7 @@ from windiagkit.diagnostics.load_test import (
     show_process_snapshot,
     show_system_resources,
 )
+from windiagkit.settings import Settings
 
 
 class DiagnosticTests(unittest.TestCase):

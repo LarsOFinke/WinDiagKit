@@ -1,28 +1,9 @@
-from dataclasses import dataclass
-
 from ..powershell.loader import load_script, powershell_array, powershell_literal
 from ..powershell.runner import powershell_command
 from ..validation import bounded_integer, network_target
+from .command_spec import CommandSpec
 from .events import LOGS
-
-
-@dataclass(frozen=True)
-class JobSpec:
-    key: str
-    category: str
-    title: str
-    description: str
-    needs_target: bool = False
-    uses_event_window: bool = False
-
-
-@dataclass(frozen=True)
-class CommandSpec:
-    title: str
-    command: tuple
-    timeout_seconds: float
-    display: str
-
+from .job_spec import JobSpec
 
 JOBS = (
     JobSpec(

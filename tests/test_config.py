@@ -2,10 +2,17 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from windiagkit.config import Settings, load_settings
+from windiagkit.config import load_settings
+from windiagkit.configuration_loader import ConfigurationLoader
+from windiagkit.settings import Settings
 
 
 class SettingsTests(unittest.TestCase):
+    def test_object_loader_uses_the_same_validated_configuration(self):
+        loader = ConfigurationLoader(path="does-not-exist.ini", warn=lambda _: None)
+
+        self.assertEqual(loader.load(), Settings())
+
     def test_missing_file_uses_defaults(self):
         warnings = []
 

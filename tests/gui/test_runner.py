@@ -8,7 +8,7 @@ from PyQt5.QtCore import QEventLoop, QTimer
 from PyQt5.QtWidgets import QApplication
 
 from windiagkit.diagnostics.catalog import CommandSpec
-from windiagkit.gui.runner import JobRunner
+from windiagkit.gui.job_runner import JobRunner
 
 
 class JobRunnerTests(unittest.TestCase):

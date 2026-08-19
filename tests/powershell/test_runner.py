@@ -1,10 +1,25 @@
 import unittest
 from unittest.mock import patch
 
+from windiagkit.powershell.powershell_runner import PowerShellRunner
 from windiagkit.powershell.runner import run_powershell
 
 
 class PowerShellRunnerTests(unittest.TestCase):
+    def test_object_runner_uses_injected_dependencies(self):
+        script_loader = unittest.mock.Mock()
+        script_loader.load.return_value = "Get-Date"
+        command_runner = unittest.mock.Mock(return_value=True)
+
+        successful = PowerShellRunner(
+            script_loader=script_loader,
+            command_runner=command_runner,
+            operating_system="nt",
+        ).run("check.ps1", {"VALUE": 2}, 12)
+
+        self.assertTrue(successful)
+        command_runner.assert_called_once()
+
     @patch("windiagkit.powershell.runner.os_name", "nt")
     @patch("windiagkit.powershell.runner.run_visible", return_value=True)
     @patch("windiagkit.powershell.runner.load_script", return_value="script body")

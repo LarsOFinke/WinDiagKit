@@ -2,13 +2,13 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from windiagkit.config import Settings
 from windiagkit.diagnostics.monitor import (
     human_bytes,
     monitor,
     read_acpi_temperatures,
     read_nvidia_gpu,
 )
+from windiagkit.settings import Settings
 
 
 class SystemMonitorTests(unittest.TestCase):

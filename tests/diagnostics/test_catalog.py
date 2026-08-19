@@ -1,7 +1,8 @@
 import unittest
 
-from windiagkit.config import Settings
 from windiagkit.diagnostics.catalog import JOBS, build_job_commands
+from windiagkit.diagnostics.job_catalog import JobCatalog
+from windiagkit.settings import Settings
 
 
 class GuiJobTests(unittest.TestCase):
@@ -13,6 +14,13 @@ class GuiJobTests(unittest.TestCase):
     def test_job_keys_are_unique(self):
         keys = [job.key for job in JOBS]
         self.assertEqual(len(keys), len(set(keys)))
+
+    def test_object_catalog_exposes_and_builds_jobs(self):
+        catalog = JobCatalog()
+
+        self.assertEqual(catalog.get("ping").title, "IPv4 and IPv6 ping")
+        self.assertEqual(len(catalog.jobs), len(JOBS))
+        self.assertEqual(len(catalog.build_commands("ipconfig", self.settings)), 1)
 
     def test_every_catalog_job_builds_commands(self):
         for job in JOBS:

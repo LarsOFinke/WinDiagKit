@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 
 from .. import __version__
 from ..cli.console import APP_NAME
-from ..config import load_settings
-from .window import MainWindow
+from ..configuration_loader import ConfigurationLoader
+from .main_window import MainWindow
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
     application.setApplicationVersion(__version__)
 
     warnings = []
-    settings = load_settings(warn=warnings.append)
+    settings = ConfigurationLoader(warn=warnings.append).load()
     window = MainWindow(settings)
     window.show()
 

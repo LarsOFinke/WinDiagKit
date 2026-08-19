@@ -8,6 +8,8 @@
 - Build the x86 executable as a windowed GUI while retaining the console entry.
 - Group CLI, diagnostics, GUI, and PowerShell code into focused subpackages and
   mirror that structure in the test suite.
+- Give every production class its own module and introduce focused configuration,
+  PowerShell, and job-catalog service objects.
 
 ## 0.3.0 - 2026-08-19
 

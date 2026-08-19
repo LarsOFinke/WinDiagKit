@@ -3,8 +3,8 @@ from time import monotonic, strftime
 
 from psutil import Error as PsutilError
 from psutil import cpu_percent, net_io_counters, virtual_memory
-from PyQt5.QtCore import QRegularExpression, Qt, QTimer
-from PyQt5.QtGui import QColor, QFont, QSyntaxHighlighter, QTextCharFormat, QTextCursor
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QFont, QTextCursor
 from PyQt5.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -27,9 +27,11 @@ from PyQt5.QtWidgets import (
 
 from .. import __version__
 from ..cli.console import APP_NAME
-from ..diagnostics.catalog import JOB_BY_KEY, JOBS, build_job_commands
+from ..diagnostics.job_catalog import JobCatalog
 from ..diagnostics.monitor import human_bytes
-from .runner import JobRunner
+from .job_runner import JobRunner
+from .log_highlighter import LogHighlighter
+from .metric_card import MetricCard
 
 STYLE = """
 QMainWindow, QWidget { background: #111827; color: #e5e7eb; }
@@ -57,53 +59,11 @@ QProgressBar::chunk { background: #2563eb; }
 """
 
 
-class MetricCard(QFrame):
-    def __init__(self, title, parent=None):
-        super().__init__(parent)
-        self.setObjectName("metricCard")
-        layout = QVBoxLayout(self)
-        title_label = QLabel(title)
-        title_label.setObjectName("muted")
-        self.value_label = QLabel("—")
-        self.value_label.setObjectName("metricValue")
-        layout.addWidget(title_label)
-        layout.addWidget(self.value_label)
-
-    def set_value(self, value):
-        self.value_label.setText(value)
-
-
-class LogHighlighter(QSyntaxHighlighter):
-    def __init__(self, document):
-        super().__init__(document)
-        rules = (
-            (r"\[OK\]|completed\.$", "#34d399"),
-            (r"\[WARNING\]|warning|timed out", "#fbbf24"),
-            (r"\[ERROR\]|failed|could not|critical", "#f87171"),
-            (r"^={10,}$|^> ", "#60a5fa"),
-        )
-        self.rules = []
-        for pattern, color in rules:
-            expression = QRegularExpression(pattern)
-            expression.setPatternOptions(QRegularExpression.CaseInsensitiveOption)
-            text_format = QTextCharFormat()
-            text_format.setForeground(QColor(color))
-            self.rules.append((expression, text_format))
-
-    def highlightBlock(self, text):
-        for expression, text_format in self.rules:
-            match_iterator = expression.globalMatch(text)
-            while match_iterator.hasNext():
-                match = match_iterator.next()
-                self.setFormat(
-                    match.capturedStart(), match.capturedLength(), text_format
-                )
-
-
 class MainWindow(QMainWindow):
     def __init__(self, settings, parent=None):
         super().__init__(parent)
         self.settings = settings
+        self.job_catalog = JobCatalog()
         self.runner = JobRunner(self)
         self._job_items = {}
         self._previous_net = net_io_counters()
@@ -260,7 +220,7 @@ class MainWindow(QMainWindow):
 
     def _populate_jobs(self):
         categories = {}
-        for job in JOBS:
+        for job in self.job_catalog.jobs:
             parent = categories.get(job.category)
             if parent is None:
                 parent = QTreeWidgetItem((job.category,))
@@ -285,7 +245,7 @@ class MainWindow(QMainWindow):
         job_key = self._selected_job_key()
         if not job_key:
             return
-        job = JOB_BY_KEY[job_key]
+        job = self.job_catalog.get(job_key)
         self.job_title.setText(job.title)
         self.job_description.setText(job.description)
         self.target_input.setEnabled(job.needs_target and not self.runner.busy)
@@ -300,7 +260,7 @@ class MainWindow(QMainWindow):
         if self.runner.busy:
             return
         try:
-            commands = build_job_commands(
+            commands = self.job_catalog.build_commands(
                 job_key,
                 self.settings,
                 target=self.target_input.text(),
@@ -313,7 +273,7 @@ class MainWindow(QMainWindow):
         self._select_job(job_key)
         timestamp = strftime("%Y-%m-%d %H:%M:%S")
         self._append_output(
-            f"\n\n### {JOB_BY_KEY[job_key].title} · {timestamp} ###\n"
+            f"\n\n### {self.job_catalog.get(job_key).title} · {timestamp} ###\n"
             "Read-only run; output is displayed in memory only.\n"
         )
         self.runner.start(commands)
@@ -348,7 +308,7 @@ class MainWindow(QMainWindow):
         self.checkpoint_button.setEnabled(not busy)
         self.cancel_button.setEnabled(busy)
         self.job_tree.setEnabled(not busy)
-        selected_job = JOB_BY_KEY.get(self._selected_job_key())
+        selected_job = self.job_catalog.get(self._selected_job_key())
         self.target_input.setEnabled(
             bool(selected_job and selected_job.needs_target and not busy)
         )

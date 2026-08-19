@@ -5,9 +5,9 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt5.QtWidgets import QApplication
 
-from windiagkit.config import Settings
 from windiagkit.diagnostics.catalog import JOBS
-from windiagkit.gui.window import MainWindow
+from windiagkit.gui.main_window import MainWindow
+from windiagkit.settings import Settings
 
 
 class GuiSmokeTests(unittest.TestCase):

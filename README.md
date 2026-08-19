@@ -129,6 +129,12 @@ Useful sequence for a load test:
 - `scripts/` - Windows build and maintenance entry points
 - `tests/` - tests grouped to mirror the application packages
 
+The application is organized around small objects with single responsibilities:
+configuration loading, immutable settings, PowerShell script loading/execution,
+diagnostic job cataloguing, Qt job execution, and individual UI widgets. Each
+class has its own module; procedural helpers are retained only for stateless
+formatting, validation, and backwards-compatible command entry points.
+
 ## Privacy and state changes
 
 WinDiagKit does not intentionally save collected diagnostic output to files.

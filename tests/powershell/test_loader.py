@@ -5,9 +5,16 @@ from windiagkit.powershell.loader import (
     powershell_array,
     powershell_literal,
 )
+from windiagkit.powershell.script_loader import PowerShellScriptLoader
 
 
 class PowerShellScriptTests(unittest.TestCase):
+    def test_object_loader_uses_the_bundled_scripts(self):
+        loader = PowerShellScriptLoader()
+
+        self.assertEqual(loader.literal("O'Brien"), "'O''Brien'")
+        self.assertIn("Get-CimInstance", loader.load("acpi_temperatures.ps1", {}))
+
     def test_operational_script_replaces_all_values(self):
         script = load_script(
             "operational_log.ps1",
