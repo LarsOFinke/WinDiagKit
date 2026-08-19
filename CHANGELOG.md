@@ -18,6 +18,10 @@
   human and token-conscious agent documentation.
 - Relax the normal Qt runtime pin to a compatible 5.15 range so pip can resolve
   the wheel available for the active Python/platform.
+- Reduce antivirus heuristic triggers with non-self-extracting directory builds,
+  UPX-free packaging, Windows version metadata, and optional Authenticode signing.
+- Execute visible bundled PowerShell files with separate typed arguments instead
+  of generating and passing large inline scripts.
 
 ## 0.3.0 - 2026-08-19
 

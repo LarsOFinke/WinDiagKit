@@ -14,8 +14,8 @@ Core responsibilities:
 - `settings.py`: immutable validated application values.
 - `configuration_loader.py` and `config.py`: configuration boundary and parsing.
 - `diagnostics/job_catalog.py`: job metadata and bounded command construction.
-- `powershell/script_loader.py`: safe bundled-template loading and literal escaping.
-- `powershell/powershell_runner.py`: Windows-only execution policy.
+- `powershell/script_loader.py`: traversal-safe bundled script resolution.
+- `powershell/powershell_runner.py`: Windows-only file/argument execution boundary.
 - `gui/job_runner.py`: asynchronous sequential processes, cancellation, and timeouts.
 - `gui/main_window.py`: presentation and user interaction orchestration.
 

@@ -1,4 +1,11 @@
-$start = (Get-Date).AddMinutes(-__MINUTES__)
+param(
+    [ValidateRange(1, 1440)]
+    [int]$Minutes = 15,
+    [ValidateRange(1, 1000)]
+    [int]$MaxEvents = 100
+)
+
+$start = (Get-Date).AddMinutes(-$Minutes)
 $applicationProviders = @(
     'Application Error',
     'Application Hang',
@@ -57,16 +64,16 @@ function Get-ProviderEvents {
 }
 
 Write-Host 'Load-test relevant event triage'
-Write-Host "Window: last __MINUTES__ minute(s)"
+Write-Host "Window: last $Minutes minute(s)"
 Write-Host 'Logs: System and Application'
 Write-Host ''
 
 $matches = @(
-    Get-ProviderEvents 'Application' $applicationProviders $start __MAX_EVENTS__
-    Get-ProviderEvents 'System' $systemProviders $start __MAX_EVENTS__
+    Get-ProviderEvents 'Application' $applicationProviders $start $MaxEvents
+    Get-ProviderEvents 'System' $systemProviders $start $MaxEvents
 )
 
-$matches = @($matches | Sort-Object TimeCreated -Descending | Select-Object -First __MAX_EVENTS__)
+$matches = @($matches | Sort-Object TimeCreated -Descending | Select-Object -First $MaxEvents)
 if ($matches.Count -eq 0) {
     Write-Host 'No load-test-relevant warnings or errors were found.'
     exit

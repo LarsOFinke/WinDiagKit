@@ -6,15 +6,15 @@ from windiagkit.diagnostics import events
 
 class EventLogTests(unittest.TestCase):
     @patch("windiagkit.diagnostics.events._POWERSHELL_RUNNER.run", return_value=True)
-    def test_operational_query_escapes_name_and_forwards_limits(self, powershell):
+    def test_operational_query_forwards_separate_parameters(self, powershell):
         successful = events.show_operational_log("Example'Log", 10, 25, 12)
 
         self.assertTrue(successful)
-        script_name, replacements, timeout, notice = powershell.call_args.args
+        script_name, parameters, timeout, notice = powershell.call_args.args
         self.assertEqual(script_name, "operational_log.ps1")
-        self.assertEqual(replacements["LOG_NAME"], "'Example''Log'")
-        self.assertEqual(replacements["MINUTES"], 10)
-        self.assertEqual(replacements["MAX_EVENTS"], 25)
+        self.assertEqual(parameters["LogName"], "Example'Log")
+        self.assertEqual(parameters["Minutes"], 10)
+        self.assertEqual(parameters["MaxEvents"], 25)
         self.assertEqual(timeout, 12)
         self.assertEqual(notice, events.EVENT_NOTICE)
 

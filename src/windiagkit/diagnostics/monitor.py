@@ -64,11 +64,11 @@ def read_acpi_temperatures(timeout=4.0):
         return []
 
     try:
-        script = _POWERSHELL_RUNNER.script_loader.load("acpi_temperatures.ps1", {})
+        command = _POWERSHELL_RUNNER.command("acpi_temperatures.ps1")
     except RuntimeError:
         return []
 
-    output = hidden_output(_POWERSHELL_RUNNER.command(script), timeout=timeout)
+    output = hidden_output(command, timeout=timeout)
 
     values = []
     for line in output.splitlines():

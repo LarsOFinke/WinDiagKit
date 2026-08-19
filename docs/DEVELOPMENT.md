@@ -27,3 +27,14 @@ python src\gui_main.py --smoke-test
 PyInstaller follows the architecture of its Python interpreter and does not
 cross-compile. Normal dependencies and tooling live in `pyproject.toml`; only
 the win32 wheel constraints remain in `requirements-x86.txt`.
+
+Both scripts produce a non-self-extracting directory build at
+`dist\WinDiagKit`. Distribute the whole directory. UPX remains disabled and
+standard Windows properties come from `scripts\windows_version_info.txt`.
+The application honors the target system's PowerShell execution policy; it does
+not bypass a policy that prevents script execution.
+
+For signed releases, install the code-signing certificate in the Windows
+certificate store and set `WINDIAGKIT_SIGN_CERT_SHA1` to its thumbprint before
+running the build. The script requires `signtool.exe`, applies an SHA-256
+Authenticode signature, timestamps it, and fails if signing does not succeed.

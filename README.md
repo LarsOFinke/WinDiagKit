@@ -9,6 +9,7 @@ Current version: **0.4.0**
 
 - Windows 10 or 11, x86 or x64
 - CPython 3.10 through 3.14
+- Windows policy must permit the bundled, visible PowerShell diagnostic scripts
 - NVIDIA GPU metrics require `nvidia-smi`; all other features continue without it
 
 The live monitor and DNS resolver can partly operate on other platforms, but the
@@ -95,7 +96,7 @@ scripts\build_x64.bat
 
 This is the normal choice for 64-bit Windows 10 and 11. It requires 64-bit
 Python and installs the project with its `build` extra from `pyproject.toml`
-before creating `dist\WinDiagKit.exe`.
+before creating `dist\WinDiagKit\WinDiagKit.exe`.
 
 The build scripts may be run from an activated matching virtual environment;
 their `python` command then uses that environment automatically.
@@ -103,7 +104,8 @@ their `python` command then uses that environment automatically.
 Run `scripts\build_x86.bat` with a 32-bit Python environment on `PATH`. The
 script resolves the project root automatically, rejects a 64-bit interpreter,
 installs the pinned x86-compatible build dependencies, disables optional UPX
-compression, and creates the windowed `dist\WinDiagKit.exe`. PyQt5 5.15.11 and
+compression, and creates the windowed `dist\WinDiagKit\WinDiagKit.exe`. PyQt5
+5.15.11 and
 its SIP dependency have CPython 3.14 win32 wheels. The x86 lockfile uses Qt
 runtime 5.15.2 because it is the only release currently published with a PyPI
 win32 wheel; normal installations use a compatible Qt 5.15 runtime selected by
@@ -116,8 +118,23 @@ PyInstaller builds for the architecture of the running Python interpreter; it
 does not cross-compile between x86 and x64. Both scripts fail early with a clear
 message if the wrong Python architecture is active.
 
-To customize the built application, copy `winddiagkit.ini.example` to
-`dist\winddiagkit.ini`.
+Both builds use PyInstaller's directory mode to avoid a self-extracting
+container. Distribute the complete `dist\WinDiagKit` directory; the EXE cannot
+be separated from its adjacent runtime files. To customize it, copy
+`winddiagkit.ini.example` to `dist\WinDiagKit\winddiagkit.ini`.
+
+For a release certificate already installed in the Windows certificate store,
+set its SHA-1 thumbprint before building. The script then applies and verifies
+an SHA-256 Authenticode signature with a trusted timestamp:
+
+```bat
+set WINDIAGKIT_SIGN_CERT_SHA1=YOUR_CERTIFICATE_THUMBPRINT
+scripts\build_x64.bat
+```
+
+Leave the variable unset for an unsigned local test build. Standard Windows
+version metadata is defined in `scripts\windows_version_info.txt`; keep its
+version synchronized with `src\windiagkit\__init__.py` for releases.
 
 ## Tests
 
@@ -185,8 +202,9 @@ Network tests generate normal DNS, ICMP, and traceroute traffic. `ipconfig /all`
 and Event Viewer output can contain sensitive information when copied or
 screenshotted.
 
-PyInstaller's `--onefile` mode extracts its runtime to a temporary directory;
-WinDiagKit itself does not export or persist collected diagnostic data.
+The release uses PyInstaller directory mode and does not unpack itself into a
+temporary directory. WinDiagKit itself does not export or persist collected
+diagnostic data.
 
 ## GUI dependency license
 
@@ -203,18 +221,19 @@ escalation, download, obfuscated-payload, or self-modifying behavior. Its
 diagnostic actions are visible and intentional: it may invoke Windows
 `ipconfig`, `ping`, `tracert`, PowerShell `Get-WinEvent`/CIM/`Resolve-DnsName`
 queries, and an installed `nvidia-smi` executable. Commands are started directly
-without a shell. Network targets are validated and, where used in a PowerShell
-template, encoded as escaped single-quoted literals.
+without a shell. PowerShell receives visible bundled `.ps1` files through
+`-File`; validated values are passed as separate process arguments. The project
+does not generate inline PowerShell, encode commands, or override execution
+policy.
 
 No software can guarantee that every antivirus engine will accept an unsigned
-PyInstaller executable. One-file PyInstaller bundles unpack native support
-files into a temporary `_MEI...` directory at launch, which is a known source
-of heuristic scrutiny. The build disables UPX compression to avoid an
-additional packer signal. For target-system analysis, provide the SHA-256 hash
-printed by the build script, the source commit, and the EXE from a clean build
-machine. If enterprise policy permits, Authenticode-sign the EXE; never ask a
-recipient to disable antivirus protection. Submit any suspected false positive
-to the relevant vendor for analysis.
+PyInstaller executable. The build uses directory mode, disables UPX compression,
+adds standard Windows metadata, and supports Authenticode signing to reduce
+avoidable heuristic signals. For target-system analysis, provide the SHA-256
+hash printed by the build script, the source commit, and the complete output
+directory from a clean build machine. Never ask a recipient to disable antivirus
+protection. Submit any remaining suspected false positive to the relevant vendor
+for analysis.
 
 ## License
 

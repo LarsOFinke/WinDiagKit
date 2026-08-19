@@ -1,6 +1,13 @@
-$start = (Get-Date).AddMinutes(-__MINUTES__)
+param(
+    [ValidateRange(1, 1440)]
+    [int]$Minutes = 15,
+    [ValidateRange(1, 1000)]
+    [int]$MaxEvents = 100
+)
+
+$start = (Get-Date).AddMinutes(-$Minutes)
 Write-Host "System log - Critical / Error / Warning"
-Write-Host "Window: last __MINUTES__ minute(s)"
+Write-Host "Window: last $Minutes minute(s)"
 Write-Host ""
 
 try {
@@ -9,7 +16,7 @@ try {
         StartTime = $start
         Level = 1,2,3
     } -ErrorAction Stop |
-    Select-Object -First __MAX_EVENTS__ TimeCreated, Id, LevelDisplayName, ProviderName, Message)
+    Select-Object -First $MaxEvents TimeCreated, Id, LevelDisplayName, ProviderName, Message)
 } catch {
     if ($_.FullyQualifiedErrorId -like 'NoMatchingEventsFound*') {
         Write-Host "No matching events found."

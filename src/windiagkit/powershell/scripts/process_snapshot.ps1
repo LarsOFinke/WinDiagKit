@@ -1,5 +1,10 @@
-$targetNames = @(__PROCESS_NAMES__)
-$topCount = __TOP_COUNT__
+param(
+    [string]$ProcessNamesCsv = '',
+    [ValidateRange(5, 50)]
+    [int]$TopCount = 15
+)
+
+$targetNames = @($ProcessNamesCsv.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 
 Write-Host 'Process resource snapshot'
 Write-Host ('Captured: {0}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz'))
@@ -62,6 +67,6 @@ if ($targetNames.Count -gt 0) {
     Write-Host ''
 }
 
-Show-TopProcesses $processes 'PrivateMemorySize64' $topCount "Top $topCount processes by private memory:" $projection
-Show-TopProcesses $processes 'CPU' $topCount "Top $topCount processes by cumulative CPU time:" $projection
-Show-TopProcesses $processes 'HandleCount' $topCount "Top $topCount processes by handle count:" $projection
+Show-TopProcesses $processes 'PrivateMemorySize64' $TopCount "Top $TopCount processes by private memory:" $projection
+Show-TopProcesses $processes 'CPU' $TopCount "Top $TopCount processes by cumulative CPU time:" $projection
+Show-TopProcesses $processes 'HandleCount' $TopCount "Top $TopCount processes by handle count:" $projection

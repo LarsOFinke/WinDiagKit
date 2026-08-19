@@ -22,7 +22,7 @@ def show_load_test_events(minutes=15, max_events=100, timeout=30.0):
     max_events = bounded_integer("max_events", max_events, 1, 1000)
     return _POWERSHELL_RUNNER.run(
         "load_test_events.ps1",
-        {"MINUTES": minutes, "MAX_EVENTS": max_events},
+        {"Minutes": minutes, "MaxEvents": max_events},
         timeout,
         DIAGNOSTIC_NOTICE,
     )
@@ -33,8 +33,8 @@ def show_process_snapshot(process_names=(), top_count=15, timeout=30.0):
     return _POWERSHELL_RUNNER.run(
         "process_snapshot.ps1",
         {
-            "PROCESS_NAMES": _POWERSHELL_RUNNER.script_loader.array(process_names),
-            "TOP_COUNT": top_count,
+            "ProcessNamesCsv": ",".join(process_names),
+            "TopCount": top_count,
         },
         timeout,
         DIAGNOSTIC_NOTICE,

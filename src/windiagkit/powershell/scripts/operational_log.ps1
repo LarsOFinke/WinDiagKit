@@ -1,18 +1,26 @@
-$logName = __LOG_NAME__
+param(
+    [Parameter(Mandatory = $true)]
+    [string]$LogName,
+    [ValidateRange(1, 1440)]
+    [int]$Minutes = 15,
+    [ValidateRange(1, 1000)]
+    [int]$MaxEvents = 100
+)
+
 try {
-    $log = Get-WinEvent -ListLog $logName -ErrorAction Stop
+    $log = Get-WinEvent -ListLog $LogName -ErrorAction Stop
 } catch {
     Write-Host "Could not inspect log: $($_.Exception.Message)"
     exit 1
 }
 if (-not $log) {
-    Write-Host "Log not available: $logName"
+    Write-Host "Log not available: $LogName"
     exit
 }
 
-Write-Host "Log: $logName"
+Write-Host "Log: $LogName"
 Write-Host "Enabled: $($log.IsEnabled)"
-Write-Host "Window: last __MINUTES__ minute(s)"
+Write-Host "Window: last $Minutes minute(s)"
 Write-Host ""
 
 if (-not $log.IsEnabled) {
@@ -21,13 +29,13 @@ if (-not $log.IsEnabled) {
     exit
 }
 
-$start = (Get-Date).AddMinutes(-__MINUTES__)
+$start = (Get-Date).AddMinutes(-$Minutes)
 try {
     $events = @(Get-WinEvent -FilterHashtable @{
-        LogName = $logName
+        LogName = $LogName
         StartTime = $start
     } -ErrorAction Stop |
-    Select-Object -First __MAX_EVENTS__ TimeCreated, Id, LevelDisplayName, ProviderName, Message)
+    Select-Object -First $MaxEvents TimeCreated, Id, LevelDisplayName, ProviderName, Message)
 } catch {
     if ($_.FullyQualifiedErrorId -like 'NoMatchingEventsFound*') {
         Write-Host "No matching events found."

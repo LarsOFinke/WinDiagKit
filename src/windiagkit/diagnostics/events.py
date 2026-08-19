@@ -19,9 +19,9 @@ def show_operational_log(log_name, minutes=15, max_events=100, timeout=30.0):
     return _POWERSHELL_RUNNER.run(
         "operational_log.ps1",
         {
-            "LOG_NAME": _POWERSHELL_RUNNER.script_loader.literal(log_name),
-            "MINUTES": minutes,
-            "MAX_EVENTS": max_events,
+            "LogName": log_name,
+            "Minutes": minutes,
+            "MaxEvents": max_events,
         },
         timeout,
         EVENT_NOTICE,
@@ -33,7 +33,7 @@ def show_system_warnings_errors(minutes=15, max_events=100, timeout=30.0):
     max_events = bounded_integer("max_events", max_events, 1, 1000)
     return _POWERSHELL_RUNNER.run(
         "system_warnings_errors.ps1",
-        {"MINUTES": minutes, "MAX_EVENTS": max_events},
+        {"Minutes": minutes, "MaxEvents": max_events},
         timeout,
         EVENT_NOTICE,
     )

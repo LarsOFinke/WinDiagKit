@@ -1,12 +1,10 @@
 from ..powershell.powershell_runner import PowerShellRunner
-from ..powershell.script_loader import PowerShellScriptLoader
 from ..validation import bounded_integer, network_target
 from .command_spec import CommandSpec
 from .events import LOGS
 from .job_spec import JobSpec
 
-_SCRIPT_LOADER = PowerShellScriptLoader()
-_POWERSHELL_RUNNER = PowerShellRunner(script_loader=_SCRIPT_LOADER)
+_POWERSHELL_RUNNER = PowerShellRunner()
 
 JOBS = (
     JobSpec(
@@ -105,11 +103,10 @@ def _command(title, command, timeout, display=None):
     return CommandSpec(title, tuple(command), timeout, display or " ".join(command))
 
 
-def _powershell(title, script_name, replacements, timeout):
-    script = _SCRIPT_LOADER.load(script_name, replacements)
+def _powershell(title, script_name, parameters, timeout):
     return _command(
         title,
-        _POWERSHELL_RUNNER.command(script),
+        _POWERSHELL_RUNNER.command(script_name, parameters),
         timeout,
         f"PowerShell · {script_name}",
     )
@@ -121,7 +118,7 @@ def _event_commands(job_key, minutes, settings):
             _powershell(
                 "Load-relevant event triage",
                 "load_test_events.ps1",
-                {"MINUTES": minutes, "MAX_EVENTS": settings.max_events},
+                {"Minutes": minutes, "MaxEvents": settings.max_events},
                 settings.event_query_timeout_seconds,
             ),
         )
@@ -130,7 +127,7 @@ def _event_commands(job_key, minutes, settings):
             _powershell(
                 "System warnings and errors",
                 "system_warnings_errors.ps1",
-                {"MINUTES": minutes, "MAX_EVENTS": settings.max_events},
+                {"Minutes": minutes, "MaxEvents": settings.max_events},
                 settings.event_query_timeout_seconds,
             ),
         )
@@ -145,9 +142,9 @@ def _event_commands(job_key, minutes, settings):
             JOB_BY_KEY[job_key].title,
             "operational_log.ps1",
             {
-                "LOG_NAME": _SCRIPT_LOADER.literal(log_name),
-                "MINUTES": minutes,
-                "MAX_EVENTS": settings.max_events,
+                "LogName": log_name,
+                "Minutes": minutes,
+                "MaxEvents": settings.max_events,
             },
             settings.event_query_timeout_seconds,
         ),
@@ -170,10 +167,8 @@ def _health_command(job_key, settings):
             "Process resource snapshot",
             "process_snapshot.ps1",
             {
-                "PROCESS_NAMES": _SCRIPT_LOADER.array(
-                    settings.diagnostic_process_names
-                ),
-                "TOP_COUNT": settings.top_process_count,
+                "ProcessNamesCsv": ",".join(settings.diagnostic_process_names),
+                "TopCount": settings.top_process_count,
             },
         ),
     }
@@ -222,7 +217,7 @@ def _network_commands(job_key, target, settings):
         _powershell(
             "DNS A and AAAA lookup",
             "dns_resolution.ps1",
-            {"HOST_NAME": _SCRIPT_LOADER.literal(target)},
+            {"HostName": target},
             settings.command_timeout_seconds,
         ),
     )

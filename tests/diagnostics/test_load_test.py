@@ -28,23 +28,23 @@ class DiagnosticTests(unittest.TestCase):
         )
 
     @patch("windiagkit.diagnostics.load_test._POWERSHELL_RUNNER.run", return_value=True)
-    def test_event_triage_replaces_bounded_values(self, run_powershell):
+    def test_event_triage_passes_bounded_parameters(self, run_powershell):
         self.assertTrue(show_load_test_events(20, 30, 10))
 
         run_powershell.assert_called_once_with(
             "load_test_events.ps1",
-            {"MINUTES": 20, "MAX_EVENTS": 30},
+            {"Minutes": 20, "MaxEvents": 30},
             10,
             DIAGNOSTIC_NOTICE,
         )
 
     @patch("windiagkit.diagnostics.load_test._POWERSHELL_RUNNER.run", return_value=True)
-    def test_process_names_are_encoded_as_literals(self, run_powershell):
+    def test_process_names_are_passed_as_data(self, run_powershell):
         self.assertTrue(show_process_snapshot(("Load App", "O'Brien"), 10, 9))
 
-        replacements = run_powershell.call_args.args[1]
-        self.assertEqual(replacements["PROCESS_NAMES"], "'Load App', 'O''Brien'")
-        self.assertEqual(replacements["TOP_COUNT"], 10)
+        parameters = run_powershell.call_args.args[1]
+        self.assertEqual(parameters["ProcessNamesCsv"], "Load App,O'Brien")
+        self.assertEqual(parameters["TopCount"], 10)
 
     @patch("windiagkit.diagnostics.load_test.show_load_test_events", return_value=True)
     @patch("windiagkit.diagnostics.load_test.show_process_snapshot", return_value=True)

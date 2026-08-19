@@ -13,8 +13,14 @@ Network jobs create ordinary DNS, ICMP, and traceroute traffic. Event and
 configuration output may contain sensitive host names, addresses, account data,
 or device details. Treat copied output and screenshots accordingly.
 
-One-file PyInstaller executables extract native runtime files temporarily,
-which can attract heuristic antivirus scrutiny. Keep UPX disabled, provide a
-source commit and SHA-256 hash, sign releases when possible, and submit suspected
-false positives to the antivirus vendor. Never instruct users to disable their
-protection.
+PowerShell diagnostics execute the visible bundled `.ps1` resources with
+`-File`; inputs are separate arguments. WinDiagKit does not use inline or encoded
+commands and does not bypass Windows execution policy.
+
+Release builds use PyInstaller directory mode so they do not self-extract at
+runtime. UPX is disabled, Windows version metadata is included, and the build
+can Authenticode-sign when a certificate thumbprint is supplied. These choices
+reduce avoidable heuristic signals but cannot guarantee that every scanner will
+classify every new unsigned binary correctly. Provide a source commit and
+SHA-256 hash, submit suspected false positives to the vendor, and never instruct
+users to disable their protection.

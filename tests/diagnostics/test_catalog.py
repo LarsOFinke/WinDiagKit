@@ -41,20 +41,26 @@ class GuiJobTests(unittest.TestCase):
         self.assertEqual(commands[-1].display, "PowerShell · load_test_events.ps1")
         self.assertNotIn("Get-WinEvent", commands[-1].display)
 
-    def test_process_targets_are_safely_encoded(self):
+    def test_process_targets_are_separate_arguments(self):
         command = self.catalog.build_commands("process_snapshot", self.settings)[0]
-        script = command.command[-1]
 
-        self.assertIn("@('Load App', 'O''Brien')", script)
-        self.assertIn("$topCount = 10", script)
+        names_index = command.command.index("-ProcessNamesCsv")
+        count_index = command.command.index("-TopCount")
+        self.assertEqual(command.command[names_index + 1], "Load App,O'Brien")
+        self.assertEqual(command.command[count_index + 1], "10")
+        self.assertIn("-File", command.command)
+        self.assertNotIn("-Command", command.command)
 
     def test_operational_log_uses_known_log_name(self):
         command = self.catalog.build_commands("dns_events", self.settings, minutes=15)[
             0
         ]
 
-        self.assertIn("Microsoft-Windows-DNS-Client/Operational", command.command[-1])
-        self.assertNotIn("__LOG_NAME__", command.command[-1])
+        log_index = command.command.index("-LogName")
+        self.assertEqual(
+            command.command[log_index + 1],
+            "Microsoft-Windows-DNS-Client/Operational",
+        )
 
     def test_ping_is_an_argument_list_for_both_families(self):
         commands = self.catalog.build_commands(

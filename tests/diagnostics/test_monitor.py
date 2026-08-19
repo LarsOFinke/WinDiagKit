@@ -32,24 +32,24 @@ class SystemMonitorTests(unittest.TestCase):
 
     @patch("windiagkit.diagnostics.monitor.os_name", "nt")
     @patch(
-        "windiagkit.diagnostics.monitor._POWERSHELL_RUNNER.script_loader.load",
-        return_value="ACPI query",
+        "windiagkit.diagnostics.monitor._POWERSHELL_RUNNER.command",
+        return_value=["powershell.exe", "-File", "acpi_temperatures.ps1"],
     )
     @patch("windiagkit.diagnostics.monitor.hidden_output", return_value="42.5\n38,0")
-    def test_acpi_query_loads_script_on_windows(self, hidden, load_script):
+    def test_acpi_query_runs_script_file_on_windows(self, hidden, command):
         temperatures = read_acpi_temperatures(timeout=6)
 
         self.assertEqual(temperatures, [42.5, 38.0])
-        load_script.assert_called_once_with("acpi_temperatures.ps1", {})
-        self.assertEqual(hidden.call_args.args[0][-1], "ACPI query")
+        command.assert_called_once_with("acpi_temperatures.ps1")
+        self.assertEqual(hidden.call_args.args[0][-1], "acpi_temperatures.ps1")
         self.assertEqual(hidden.call_args.kwargs["timeout"], 6)
 
     @patch("windiagkit.diagnostics.monitor.os_name", "nt")
     @patch(
-        "windiagkit.diagnostics.monitor._POWERSHELL_RUNNER.script_loader.load",
+        "windiagkit.diagnostics.monitor._POWERSHELL_RUNNER.command",
         side_effect=RuntimeError,
     )
-    def test_acpi_query_tolerates_missing_script(self, load_script):
+    def test_acpi_query_tolerates_missing_script(self, command):
         self.assertEqual(read_acpi_temperatures(), [])
 
     @patch("windiagkit.diagnostics.monitor.print")

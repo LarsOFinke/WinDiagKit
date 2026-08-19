@@ -14,22 +14,28 @@ class PowerShellRunner:
         self.command_runner = command_runner
         self.operating_system = operating_system
 
-    def command(self, script):
-        return [
+    def command(self, script_name, parameters=None):
+        script_path = self.script_loader.resolve(script_name)
+        command = [
             "powershell.exe",
             "-NoLogo",
             "-NoProfile",
             "-NonInteractive",
-            "-Command",
-            script,
+            "-File",
+            str(script_path),
         ]
+        for name, value in (parameters or {}).items():
+            if not name.isidentifier() or not isinstance(value, (str, int, float)):
+                raise RuntimeError(f"Invalid PowerShell parameter: {name}")
+            command.extend((f"-{name}", str(value)))
+        return command
 
-    def run(self, script_name, replacements, timeout, notice=None):
+    def run(self, script_name, parameters, timeout, notice=None):
         if self.operating_system != "nt":
             print("This function is intended for Windows.")
             return False
         try:
-            script = self.script_loader.load(script_name, replacements)
+            command = self.command(script_name, parameters)
         except RuntimeError as exc:
             print(str(exc))
             return False
@@ -37,10 +43,10 @@ class PowerShellRunner:
         if notice:
             print(f"\n{notice}\n")
         return self.command_runner(
-            self.command(script),
+            command,
             timeout=timeout,
             display_command=(
-                "powershell.exe -NoProfile -NonInteractive -Command "
+                "powershell.exe -NoProfile -NonInteractive -File "
                 f"<bundled {script_name}>"
             ),
         )
