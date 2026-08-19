@@ -1,29 +1,91 @@
 # WinDiagKit
 
-Small read-only Windows troubleshooting console for live system metrics, IPv4/IPv6 checks, and selected Event Viewer logs.
+WinDiagKit is a small, read-only Windows troubleshooting console for live system
+metrics, IPv4/IPv6 checks, and selected Event Viewer logs.
+
+Current version: **0.2.0**
+
+## Supported environment
+
+- Windows 10 or 11, x86 or x64
+- CPython 3.10 through 3.14
+- NVIDIA GPU metrics require `nvidia-smi`; all other features continue without it
+
+The live monitor and DNS resolver can partly operate on other platforms, but the
+application's supported target is Windows.
 
 ## Run from Python
 
 ```bat
 python -m pip install -r requirements.txt
-python main.py
+python src\main.py
 ```
+
+## Configuration
+
+Configuration is optional. Without a configuration file, WinDiagKit uses safe
+built-in defaults. To customize it, copy `winddiagkit.ini.example` to
+`winddiagkit.ini` in the project root or beside the built EXE, edit it, and
+restart the app.
+
+You can select a file elsewhere by setting `WINDIAGKIT_CONFIG`:
+
+```bat
+set WINDIAGKIT_CONFIG=C:\Tools\WinDiagKit\office.ini
+python src\main.py
+```
+
+Available settings include:
+
+- default network target, ping count, and ping timeout
+- traceroute hop limit and per-hop timeout
+- overall network command timeout
+- Event Viewer time-window choices, maximum results, and query timeout
+- monitor sampling, ACPI refresh, and helper-command intervals
+
+Invalid values are reported at startup and replaced with built-in defaults.
+The complete documented template is in `winddiagkit.ini.example`.
 
 ## Build x86 EXE
 
-Run `build_x86.bat` from a **32-bit Python** environment.
+Run `scripts\build_x86.bat` with a 32-bit Python environment on `PATH`. The
+script resolves the project root automatically, rejects a 64-bit interpreter,
+installs the pinned build dependencies, and creates `dist\WinDiagKit.exe`.
+
+To customize the built application, copy `winddiagkit.ini.example` to
+`dist\winddiagkit.ini`.
+
+## Tests
+
+The tests use only Python's standard library test runner:
+
+```bat
+python -m unittest discover -v
+```
+
+Windows commands are mocked in unit tests so the suite is safe to run on other
+platforms. A real Windows smoke test is still recommended for release builds.
 
 ## Project layout
 
-- `main.py` - entry point only
-- `menus.py` - interactive console navigation
-- `system_monitor.py` - CPU/RAM/network/GPU/temperature monitor
-- `network_tools.py` - `ipconfig`, DNS, ping, traceroute
-- `event_logs.py` - read-only Event Viewer queries
-- `console_utils.py` - shared console/subprocess helpers
+- `src/main.py` - direct source and PyInstaller entry point
+- `src/windiagkit/` - application package and diagnostic modules
+- `scripts/` - Windows build and maintenance scripts
+- `tests/` - automated unit tests
 
-## Privacy / state changes
+## Privacy and state changes
 
-WinDiagKit does not intentionally save collected diagnostic output to files. Event logs are queried read-only. Operational logs that are disabled are reported as disabled and are **not enabled automatically**.
+WinDiagKit does not intentionally save collected diagnostic output to files.
+Event logs are queried read-only. Operational logs that are disabled are
+reported as disabled and are not enabled automatically.
 
-`ipconfig /all` and Event Viewer output can still contain sensitive information when copied or screenshotted.
+Network tests generate normal DNS, ICMP, and traceroute traffic. `ipconfig /all`
+and Event Viewer output can contain sensitive information when copied or
+screenshotted.
+
+PyInstaller's `--onefile` mode extracts its runtime to a temporary directory;
+WinDiagKit itself does not export or persist collected diagnostic data.
+
+## License
+
+WinDiagKit is available under the MIT License. See `LICENSE`.

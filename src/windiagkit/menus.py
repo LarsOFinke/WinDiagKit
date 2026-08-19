@@ -1,26 +1,23 @@
-from console_utils import APP_NAME, clear_screen, pause
-from event_logs import (
+from . import __version__
+from .console_utils import APP_NAME, clear_screen, pause
+from .event_logs import (
     show_dns_log,
     show_network_profile_log,
     show_system_warnings_errors,
     show_wlan_log,
 )
-from network_tools import ping_test, resolve_addresses, show_ipconfig, traceroute_test
-from system_monitor import monitor
-
-
-DEFAULT_TARGET = "example.com"
-DEFAULT_EVENT_WINDOW = 15
+from .network_tools import ping_test, resolve_addresses, show_ipconfig, traceroute_test
+from .system_monitor import monitor
 
 
 def header(title):
     clear_screen()
-    print(f"{APP_NAME} - {title}")
+    print(f"{APP_NAME} {__version__} - {title}")
     print("=" * 58)
 
 
-def network_menu():
-    target = DEFAULT_TARGET
+def network_menu(settings):
+    target = settings.default_target
 
     while True:
         header("Network Troubleshooting")
@@ -41,21 +38,31 @@ def network_menu():
             if value:
                 target = value
         elif choice == "2":
-            ping_test(target)
+            ping_test(
+                target,
+                count=settings.ping_count,
+                timeout_ms=settings.ping_timeout_ms,
+                command_timeout=settings.command_timeout_seconds,
+            )
             pause()
         elif choice == "3":
-            traceroute_test(target)
+            traceroute_test(
+                target,
+                max_hops=settings.traceroute_max_hops,
+                timeout_ms=settings.traceroute_timeout_ms,
+                command_timeout=settings.command_timeout_seconds,
+            )
             pause()
         elif choice == "4":
             resolve_addresses(target)
             pause()
         elif choice == "5":
-            show_ipconfig()
+            show_ipconfig(settings.command_timeout_seconds)
             pause()
 
 
-def event_log_menu():
-    minutes = DEFAULT_EVENT_WINDOW
+def event_log_menu(settings):
+    minutes = settings.event_window_minutes
 
     while True:
         header("Windows Event Logs")
@@ -73,24 +80,33 @@ def event_log_menu():
         if choice == "0":
             return
         if choice == "1":
-            show_dns_log(minutes)
+            show_dns_log(
+                minutes, settings.max_events, settings.event_query_timeout_seconds
+            )
             pause()
         elif choice == "2":
-            show_network_profile_log(minutes)
+            show_network_profile_log(
+                minutes, settings.max_events, settings.event_query_timeout_seconds
+            )
             pause()
         elif choice == "3":
-            show_wlan_log(minutes)
+            show_wlan_log(
+                minutes, settings.max_events, settings.event_query_timeout_seconds
+            )
             pause()
         elif choice == "4":
-            show_system_warnings_errors(minutes)
+            show_system_warnings_errors(
+                minutes, settings.max_events, settings.event_query_timeout_seconds
+            )
             pause()
         elif choice == "5":
-            value = input("Minutes [5/15/30/60]: ").strip()
-            if value in {"5", "15", "30", "60"}:
+            choices = "/".join(str(value) for value in settings.event_window_choices)
+            value = input(f"Minutes [{choices}]: ").strip()
+            if value in {str(item) for item in settings.event_window_choices}:
                 minutes = int(value)
 
 
-def main_menu():
+def main_menu(settings):
     while True:
         header("Main Menu")
         print("Read-only troubleshooting helper")
@@ -106,11 +122,11 @@ def main_menu():
         if choice == "0":
             return
         if choice == "1":
-            monitor()
+            monitor(settings)
         elif choice == "2":
-            network_menu()
+            network_menu(settings)
         elif choice == "3":
-            event_log_menu()
+            event_log_menu(settings)
         elif choice == "4":
-            show_ipconfig()
+            show_ipconfig(settings.command_timeout_seconds)
             pause()

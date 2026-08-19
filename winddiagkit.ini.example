@@ -1,0 +1,18 @@
+[network]
+default_target = example.com
+ping_count = 4
+ping_timeout_ms = 2000
+traceroute_max_hops = 20
+traceroute_timeout_ms = 1000
+command_timeout_seconds = 30
+
+[events]
+default_window_minutes = 15
+window_choices = 5, 15, 30, 60
+max_events = 100
+query_timeout_seconds = 30
+
+[monitor]
+sample_seconds = 1.0
+acpi_refresh_seconds = 5.0
+helper_timeout_seconds = 4.0

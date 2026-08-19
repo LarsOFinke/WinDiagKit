@@ -13,10 +13,28 @@ def pause(message="Press Enter to continue..."):
     input(f"\n{message}")
 
 
-def run_visible(command):
+def run_visible(command, timeout=None):
     """Run a command in the current console. Output is not captured or saved."""
     print("\n> " + subprocess.list2cmdline(command))
-    subprocess.run(command, check=False)
+    try:
+        result = subprocess.run(command, check=False, timeout=timeout)
+    except FileNotFoundError:
+        print(f"Command not found: {command[0]}")
+        return False
+    except OSError as exc:
+        print(f"Could not start {command[0]}: {exc}")
+        return False
+    except subprocess.TimeoutExpired:
+        print(f"Command timed out after {timeout:g} seconds.")
+        return False
+    except KeyboardInterrupt:
+        print("Command interrupted.")
+        return False
+
+    if result.returncode != 0:
+        print(f"Command exited with status {result.returncode}.")
+        return False
+    return True
 
 
 def hidden_output(command, timeout=3):

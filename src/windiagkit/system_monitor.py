@@ -4,11 +4,7 @@ import time
 
 import psutil
 
-from console_utils import APP_NAME, clear_screen, hidden_output
-
-
-SAMPLE_SECONDS = 1.0
-ACPI_TEMP_REFRESH_SECONDS = 5.0
+from .console_utils import APP_NAME, clear_screen, hidden_output
 
 
 def human_bytes(value):
@@ -34,7 +30,7 @@ def find_nvidia_smi():
     return None
 
 
-def read_nvidia_gpu(nvidia_smi):
+def read_nvidia_gpu(nvidia_smi, timeout=3.0):
     if not nvidia_smi:
         return []
 
@@ -44,7 +40,7 @@ def read_nvidia_gpu(nvidia_smi):
             "--query-gpu=name,utilization.gpu,temperature.gpu,memory.used,memory.total",
             "--format=csv,noheader,nounits",
         ],
-        timeout=3,
+        timeout=timeout,
     )
 
     gpus = []
@@ -57,7 +53,7 @@ def read_nvidia_gpu(nvidia_smi):
     return gpus
 
 
-def read_acpi_temperatures():
+def read_acpi_temperatures(timeout=4.0):
     """Best-effort ACPI thermal zones; these are not guaranteed CPU package temps."""
     if os.name != "nt":
         return []
@@ -76,7 +72,7 @@ def read_acpi_temperatures():
                 "ForEach-Object { '{0:F1}' -f (($_.CurrentTemperature / 10.0) - 273.15) }"
             ),
         ],
-        timeout=4,
+        timeout=timeout,
     )
 
     values = []
@@ -101,13 +97,13 @@ def _stop_requested():
     return False
 
 
-def monitor():
+def monitor(settings):
     nvidia_smi = find_nvidia_smi()
     previous_net = psutil.net_io_counters()
     previous_time = time.monotonic()
 
     psutil.cpu_percent(interval=None)
-    time.sleep(SAMPLE_SECONDS)
+    time.sleep(settings.sample_seconds)
 
     acpi_temps = []
     next_acpi_refresh = 0.0
@@ -128,8 +124,8 @@ def monitor():
             previous_time = now
 
             if now >= next_acpi_refresh:
-                acpi_temps = read_acpi_temperatures()
-                next_acpi_refresh = now + ACPI_TEMP_REFRESH_SECONDS
+                acpi_temps = read_acpi_temperatures(settings.helper_timeout_seconds)
+                next_acpi_refresh = now + settings.acpi_refresh_seconds
 
             clear_screen()
             print(f"{APP_NAME} | Live System Monitor")
@@ -152,7 +148,7 @@ def monitor():
             else:
                 print("TEMP: ACPI thermal zones unavailable")
 
-            gpus = read_nvidia_gpu(nvidia_smi)
+            gpus = read_nvidia_gpu(nvidia_smi, settings.helper_timeout_seconds)
             if gpus:
                 for index, (name, util, temp, used, total) in enumerate(gpus):
                     print(
@@ -163,9 +159,12 @@ def monitor():
                 print("GPU : NVIDIA metrics unavailable")
 
             print("=" * 72)
-            print("Q / Esc: return to main menu | Read-only | No diagnostic logging")
+            if os.name == "nt":
+                print("Q / Esc: return to main menu | Read-only | No diagnostic logging")
+            else:
+                print("Ctrl+C: return to main menu | Read-only | No diagnostic logging")
 
-            end_at = loop_started + SAMPLE_SECONDS
+            end_at = loop_started + settings.sample_seconds
             while time.monotonic() < end_at:
                 if _stop_requested():
                     return
