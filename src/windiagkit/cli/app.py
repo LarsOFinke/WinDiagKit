@@ -1,5 +1,5 @@
-from .config import load_settings
-from .console_utils import pause
+from ..config import load_settings
+from .console import pause
 from .menus import main_menu
 
 

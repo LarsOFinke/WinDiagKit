@@ -1,20 +1,25 @@
-from . import __version__
-from .console_utils import APP_NAME, clear_screen, pause
-from .diagnostics import (
+from .. import __version__
+from ..diagnostics.events import (
+    show_dns_log,
+    show_network_profile_log,
+    show_system_warnings_errors,
+    show_wlan_log,
+)
+from ..diagnostics.load_test import (
     show_configuration_health,
     show_load_test_checkpoint,
     show_load_test_events,
     show_process_snapshot,
     show_system_resources,
 )
-from .event_logs import (
-    show_dns_log,
-    show_network_profile_log,
-    show_system_warnings_errors,
-    show_wlan_log,
+from ..diagnostics.monitor import monitor
+from ..diagnostics.network import (
+    ping_test,
+    resolve_addresses,
+    show_ipconfig,
+    traceroute_test,
 )
-from .network_tools import ping_test, resolve_addresses, show_ipconfig, traceroute_test
-from .system_monitor import monitor
+from .console import APP_NAME, clear_screen, pause
 
 
 def header(title):

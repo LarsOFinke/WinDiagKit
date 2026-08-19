@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from windiagkit.config import Settings
-from windiagkit.diagnostics import (
+from windiagkit.diagnostics.load_test import (
     DIAGNOSTIC_NOTICE,
     show_configuration_health,
     show_load_test_checkpoint,
@@ -13,7 +13,7 @@ from windiagkit.diagnostics import (
 
 
 class DiagnosticTests(unittest.TestCase):
-    @patch("windiagkit.diagnostics.run_powershell", return_value=True)
+    @patch("windiagkit.diagnostics.load_test.run_powershell", return_value=True)
     def test_focused_health_checks_use_separate_scripts(self, run_powershell):
         self.assertTrue(show_system_resources(timeout=12))
         self.assertTrue(show_configuration_health(timeout=13))
@@ -27,7 +27,7 @@ class DiagnosticTests(unittest.TestCase):
             ("configuration_health.ps1", {}, 13, DIAGNOSTIC_NOTICE),
         )
 
-    @patch("windiagkit.diagnostics.run_powershell", return_value=True)
+    @patch("windiagkit.diagnostics.load_test.run_powershell", return_value=True)
     def test_event_triage_replaces_bounded_values(self, run_powershell):
         self.assertTrue(show_load_test_events(20, 30, 10))
 
@@ -38,7 +38,7 @@ class DiagnosticTests(unittest.TestCase):
             DIAGNOSTIC_NOTICE,
         )
 
-    @patch("windiagkit.diagnostics.run_powershell", return_value=True)
+    @patch("windiagkit.diagnostics.load_test.run_powershell", return_value=True)
     def test_process_names_are_encoded_as_literals(self, run_powershell):
         self.assertTrue(show_process_snapshot(("Load App", "O'Brien"), 10, 9))
 
@@ -46,10 +46,12 @@ class DiagnosticTests(unittest.TestCase):
         self.assertEqual(replacements["PROCESS_NAMES"], "'Load App', 'O''Brien'")
         self.assertEqual(replacements["TOP_COUNT"], 10)
 
-    @patch("windiagkit.diagnostics.show_load_test_events", return_value=True)
-    @patch("windiagkit.diagnostics.show_process_snapshot", return_value=True)
-    @patch("windiagkit.diagnostics.show_configuration_health", return_value=True)
-    @patch("windiagkit.diagnostics.show_system_resources", return_value=True)
+    @patch("windiagkit.diagnostics.load_test.show_load_test_events", return_value=True)
+    @patch("windiagkit.diagnostics.load_test.show_process_snapshot", return_value=True)
+    @patch(
+        "windiagkit.diagnostics.load_test.show_configuration_health", return_value=True
+    )
+    @patch("windiagkit.diagnostics.load_test.show_system_resources", return_value=True)
     def test_checkpoint_runs_all_diagnostics(
         self, resources, configuration, processes, events
     ):

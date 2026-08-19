@@ -1,7 +1,7 @@
 from os import name as os_name
 
-from .console_utils import run_visible
-from .powershell_scripts import load_script
+from ..cli.console import run_visible
+from .loader import load_script
 
 
 def powershell_command(script):

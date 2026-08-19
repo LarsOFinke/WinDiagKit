@@ -1,6 +1,6 @@
-from .powershell_runner import run_powershell
-from .powershell_scripts import powershell_array
-from .validation import bounded_integer
+from ..powershell.loader import powershell_array
+from ..powershell.runner import run_powershell
+from ..validation import bounded_integer
 
 DIAGNOSTIC_NOTICE = "Read-only diagnostic. Results are displayed only."
 

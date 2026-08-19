@@ -1,6 +1,6 @@
-from .powershell_runner import run_powershell
-from .powershell_scripts import powershell_literal
-from .validation import bounded_integer
+from ..powershell.loader import powershell_literal
+from ..powershell.runner import run_powershell
+from ..validation import bounded_integer
 
 LOGS = {
     "dns": "Microsoft-Windows-DNS-Client/Operational",

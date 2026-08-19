@@ -5,9 +5,9 @@ from time import monotonic, sleep, strftime
 
 from psutil import cpu_freq, cpu_percent, net_io_counters, virtual_memory
 
-from .console_utils import APP_NAME, clear_screen, hidden_output
-from .powershell_runner import powershell_command
-from .powershell_scripts import load_script
+from ..cli.console import APP_NAME, clear_screen, hidden_output
+from ..powershell.loader import load_script
+from ..powershell.runner import powershell_command
 
 
 def human_bytes(value):

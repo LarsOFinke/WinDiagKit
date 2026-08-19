@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 - 2026-08-19
+
+- Add a PyQt5 desktop interface with live system metrics and categorized jobs.
+- Stream diagnostic output without blocking the UI and support safe cancellation.
+- Add searchable, color-highlighted in-memory logs and contextual job controls.
+- Build the x86 executable as a windowed GUI while retaining the console entry.
+- Group CLI, diagnostics, GUI, and PowerShell code into focused subpackages and
+  mirror that structure in the test suite.
+
 ## 0.3.0 - 2026-08-19
 
 - Add read-only system-readiness, focused event-triage, and process-snapshot

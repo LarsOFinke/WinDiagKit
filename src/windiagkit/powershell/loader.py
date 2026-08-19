@@ -1,7 +1,7 @@
 from pathlib import Path
 from re import findall
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().with_name("powershell")
+SCRIPT_DIRECTORY = Path(__file__).resolve().with_name("scripts")
 
 
 def powershell_literal(value):

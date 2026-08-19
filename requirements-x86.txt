@@ -1,3 +1,4 @@
 # psutil 7.x does not publish a Windows x86 wheel. 6.1.1 is the latest release
 # with a CPython 3.7+ ABI-compatible win32 wheel.
+-r requirements-gui-x86.txt
 psutil==6.1.1

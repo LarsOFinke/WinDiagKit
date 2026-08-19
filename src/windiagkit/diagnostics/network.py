@@ -1,7 +1,7 @@
 from os import name
 from socket import AF_INET, AF_INET6, SOCK_STREAM, gaierror, getaddrinfo
 
-from .console_utils import run_visible
+from ..cli.console import run_visible
 
 
 def _windows_only():

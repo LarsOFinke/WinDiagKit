@@ -1,6 +1,6 @@
 import unittest
 
-from windiagkit.powershell_scripts import (
+from windiagkit.powershell.loader import (
     load_script,
     powershell_array,
     powershell_literal,
@@ -51,6 +51,14 @@ class PowerShellScriptTests(unittest.TestCase):
         self.assertIn("Win32_PnPEntity", configuration)
         self.assertIn("WHEA-Logger", events)
         self.assertIn("Get-Process", processes)
+
+    def test_dns_resolution_script_is_available(self):
+        script = load_script(
+            "dns_resolution.ps1", {"HOST_NAME": powershell_literal("example.com")}
+        )
+
+        self.assertIn("Resolve-DnsName", script)
+        self.assertNotIn("__HOST_NAME__", script)
 
     def test_powershell_values_are_escaped(self):
         self.assertEqual(powershell_literal("O'Brien"), "'O''Brien'")

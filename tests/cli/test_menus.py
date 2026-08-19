@@ -1,18 +1,18 @@
 import unittest
 from unittest.mock import patch
 
+from windiagkit.cli.menus import diagnostic_menu, main_menu
 from windiagkit.config import Settings
-from windiagkit.menus import diagnostic_menu, main_menu
 
 
 class MenuTests(unittest.TestCase):
-    @patch("windiagkit.menus.pause")
-    @patch("windiagkit.menus.show_load_test_checkpoint")
-    @patch("windiagkit.menus.show_process_snapshot")
-    @patch("windiagkit.menus.show_load_test_events")
-    @patch("windiagkit.menus.show_configuration_health")
-    @patch("windiagkit.menus.show_system_resources")
-    @patch("windiagkit.menus.header")
+    @patch("windiagkit.cli.menus.pause")
+    @patch("windiagkit.cli.menus.show_load_test_checkpoint")
+    @patch("windiagkit.cli.menus.show_process_snapshot")
+    @patch("windiagkit.cli.menus.show_load_test_events")
+    @patch("windiagkit.cli.menus.show_configuration_health")
+    @patch("windiagkit.cli.menus.show_system_resources")
+    @patch("windiagkit.cli.menus.header")
     @patch("builtins.input", side_effect=("1", "2", "3", "4", "5", "0"))
     def test_diagnostic_menu_routes_every_action(
         self,
@@ -44,8 +44,8 @@ class MenuTests(unittest.TestCase):
         checkpoint.assert_called_once_with(settings)
         self.assertEqual(pause.call_count, 5)
 
-    @patch("windiagkit.menus.diagnostic_menu")
-    @patch("windiagkit.menus.header")
+    @patch("windiagkit.cli.menus.diagnostic_menu")
+    @patch("windiagkit.cli.menus.header")
     @patch("builtins.input", side_effect=("4", "0"))
     def test_main_menu_opens_diagnostics(self, user_input, header, diagnostics):
         settings = Settings()
